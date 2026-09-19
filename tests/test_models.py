@@ -6,14 +6,15 @@ from ghtoolkit import (
     ProjectConfig,
     PullRequestInfo,
     PullRequestItem,
-    ReviewInfo,
     ReviewItem,
 )
 
 
 class ModelTests(unittest.TestCase):
     def test_commit_item_dict_and_attributes(self):
-        item = CommitItem({"hash": "c" * 40, "message": "Headline\n\nBody line 1\nBody line 2"})
+        item = CommitItem(
+            {"hash": "c" * 40, "message": "Headline\n\nBody line 1\nBody line 2"}
+        )
         self.assertEqual(item["hash"], "c" * 40)
         self.assertEqual(item.sha, "c" * 40)
         self.assertEqual(item.headline, "Headline")
@@ -65,13 +66,15 @@ class ModelTests(unittest.TestCase):
         self.assertEqual(len(item.comments), 2)
 
     def test_project_config(self):
-        cfg = ProjectConfig.from_dict({
-            "name": "Service-A",
-            "owner": "org",
-            "repo": "service-a-backend",
-            "author": "Volcann",
-            "local_path": "/path/to/code",
-        })
+        cfg = ProjectConfig.from_dict(
+            {
+                "name": "Service-A",
+                "owner": "org",
+                "repo": "service-a-backend",
+                "author": "Volcann",
+                "local_path": "/path/to/code",
+            }
+        )
         self.assertEqual(cfg.full_name, "org/service-a-backend")
         self.assertEqual(cfg.category, "Backend")
         self.assertEqual(cfg.local_path, "/path/to/code")

@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-import re
+from abc import ABCMeta
 from dataclasses import dataclass, field
-from pathlib import PurePosixPath
 from typing import Any, Literal, NotRequired, TypedDict
 
 
@@ -31,6 +30,18 @@ class ProjectConfig:
     def full_name(self) -> str:
         return f"{self.owner}/{self.repo}"
 
+    def __getitem__(self, item: str) -> Any:
+        try:
+            return getattr(self, item)
+        except AttributeError:
+            raise KeyError(item)
+
+    def __setitem__(self, key: str, value: Any) -> None:
+        setattr(self, key, value)
+
+    def get(self, item: str, default: Any = None) -> Any:
+        return getattr(self, item, default)
+
     def to_dict(self) -> dict[str, Any]:
         return {
             "name": self.name,
@@ -47,7 +58,11 @@ class ProjectConfig:
         return cls(
             name=data.get("name") or data.get("project_name") or "HR-Tool",
             category=data.get("category")
-            or ("Frontend" if "frontend" in (data.get("repo") or "").lower() else "Backend"),
+            or (
+                "Frontend"
+                if "frontend" in (data.get("repo") or "").lower()
+                else "Backend"
+            ),
             owner=data.get("owner", ""),
             repo=data.get("repo", ""),
             author=data.get("author", "Volcann"),
@@ -57,7 +72,7 @@ class ProjectConfig:
 
 
 @dataclass
-class CommitInfo:
+class CommitInfo(metaclass=ABCMeta):
     """Details of a single git commit."""
 
     sha: str
@@ -128,69 +143,169 @@ class CommitInfo:
 class CommitItem(dict):
     """Dictionary subclass providing transparent attribute access for CommitInfo compatibility."""
 
+    def __getattr__(self, name: str) -> Any:
+        if name in self:
+            return self[name]
+        raise AttributeError(f"{type(self).__name__!r} object has no attribute {name!r}")
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        self[name] = value
+
     @property
     def sha(self) -> str:
-        return self.get("sha") or self.get("hash") or ""
+        return self.get("sha") or self.get("hash") or self.get("oid") or ""
+
+    @sha.setter
+    def sha(self, value: str) -> None:
+        self["sha"] = value
 
     @property
     def hash(self) -> str:
-        return self.get("hash") or self.get("sha") or ""
+        return self.sha
+
+    @hash.setter
+    def hash(self, value: str) -> None:
+        self["sha"] = value
+        self["hash"] = value
+
+    @property
+    def short_sha(self) -> str:
+        if "short_sha" in self:
+            return self["short_sha"]
+        s = self.sha
+        return s[:7] if s else ""
+
+    @short_sha.setter
+    def short_sha(self, value: str) -> None:
+        self["short_sha"] = value
 
     @property
     def message(self) -> str:
-        return self.get("message", "")
+        return self.get("message") or self.get("messageHeadline") or ""
+
+    @message.setter
+    def message(self, value: str) -> None:
+        self["message"] = value
 
     @property
     def headline(self) -> str:
+        if "headline" in self:
+            return self["headline"]
         msg = self.message
         return msg.strip().splitlines()[0] if msg else ""
 
+    @headline.setter
+    def headline(self, value: str) -> None:
+        self["headline"] = value
+
     @property
     def body(self) -> str:
+        if "body" in self:
+            return self["body"]
         msg = self.message
         if not msg:
             return ""
         lines = msg.strip().splitlines()
         return "\n".join(lines[1:]).strip() if len(lines) > 1 else ""
 
+    @body.setter
+    def body(self, value: str) -> None:
+        self["body"] = value
+
     @property
     def author_name(self) -> str:
-        return self.get("author_name", "")
+        if "author_name" in self:
+            return self["author_name"]
+        auth = self.get("author")
+        if isinstance(auth, dict):
+            return auth.get("name", "")
+        authors = self.get("authors")
+        if isinstance(authors, list) and authors and isinstance(authors[0], dict):
+            return authors[0].get("name", "")
+        return str(auth or "")
+
+    @author_name.setter
+    def author_name(self, value: str) -> None:
+        self["author_name"] = value
 
     @property
     def author_login(self) -> str:
-        return self.get("author_login", "")
+        if "author_login" in self:
+            return self["author_login"]
+        auth = self.get("author")
+        if isinstance(auth, dict):
+            return auth.get("login", auth.get("name", ""))
+        authors = self.get("authors")
+        if isinstance(authors, list) and authors and isinstance(authors[0], dict):
+            return authors[0].get("login", authors[0].get("name", ""))
+        return self.author_name
+
+    @author_login.setter
+    def author_login(self, value: str) -> None:
+        self["author_login"] = value
 
     @property
     def author_email(self) -> str:
-        return self.get("author_email", "")
+        if "author_email" in self:
+            return self["author_email"]
+        auth = self.get("author")
+        if isinstance(auth, dict):
+            return auth.get("email", "")
+        authors = self.get("authors")
+        if isinstance(authors, list) and authors and isinstance(authors[0], dict):
+            return authors[0].get("email", "")
+        return ""
+
+    @author_email.setter
+    def author_email(self, value: str) -> None:
+        self["author_email"] = value
 
     @property
     def date(self) -> str:
-        return self.get("date", "")
+        return self.get("date") or self.get("committedDate") or self.get("authoredDate") or ""
+
+    @date.setter
+    def date(self, value: str) -> None:
+        self["date"] = value
 
     @property
     def url(self) -> str:
-        return self.get("url", "")
+        return self.get("url") or self.get("html_url", "")
+
+    @url.setter
+    def url(self, value: str) -> None:
+        self["url"] = value
 
     @property
     def branch(self) -> str | None:
         return self.get("branch")
 
+    @branch.setter
+    def branch(self, value: str | None) -> None:
+        self["branch"] = value
+
     @property
     def pr_number(self) -> int | None:
         return self.get("pr_number")
 
+    @pr_number.setter
+    def pr_number(self, value: int | None) -> None:
+        self["pr_number"] = value
+
     @property
     def files(self) -> list[str]:
         return self.get("files", [])
+
+    @files.setter
+    def files(self, value: list[str]) -> None:
+        self["files"] = value
 
     def to_info(self) -> CommitInfo:
         return CommitInfo.from_dict(self)
 
 
 @dataclass
-class PullRequestInfo:
+class PullRequestInfo(metaclass=ABCMeta):
     """Details of a GitHub pull request."""
 
     number: int
@@ -232,7 +347,9 @@ class PullRequestInfo:
             "base_ref": self.base_ref,
             "is_draft": self.is_draft,
             "is_own": self.is_own,
-            "commits": [c.to_dict() if hasattr(c, "to_dict") else c for c in self.commits],
+            "commits": [
+                c.to_dict() if hasattr(c, "to_dict") else c for c in self.commits
+            ],
             "author_commits": [
                 c.to_dict() if hasattr(c, "to_dict") else c for c in self.author_commits
             ],
@@ -261,14 +378,12 @@ class PullRequestInfo:
 
         files_raw = data.get("files_changed") or data.get("files", [])
         files_list = [
-            f.get("path") if isinstance(f, dict) else str(f)
-            for f in files_raw
+            f.get("path") if isinstance(f, dict) else str(f) for f in files_raw
         ]
 
         labels_raw = data.get("labels", [])
         labels_list = [
-            l.get("name") if isinstance(l, dict) else str(l)
-            for l in labels_raw
+            lbl.get("name") if isinstance(lbl, dict) else str(lbl) for lbl in labels_raw
         ]
 
         return cls(
@@ -300,17 +415,37 @@ class PullRequestInfo:
 class PullRequestItem(dict):
     """Dictionary subclass providing transparent attribute access for PullRequestInfo compatibility."""
 
+    def __getattr__(self, name: str) -> Any:
+        if name in self:
+            return self[name]
+        raise AttributeError(f"{type(self).__name__!r} object has no attribute {name!r}")
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        self[name] = value
+
     @property
     def number(self) -> int:
         return self.get("number", 0)
+
+    @number.setter
+    def number(self, value: int) -> None:
+        self["number"] = int(value)
 
     @property
     def title(self) -> str:
         return self.get("title", "")
 
+    @title.setter
+    def title(self, value: str) -> None:
+        self["title"] = value
+
     @property
     def body(self) -> str:
         return self.get("body", "")
+
+    @body.setter
+    def body(self, value: str) -> None:
+        self["body"] = value
 
     @property
     def author_login(self) -> str:
@@ -321,41 +456,81 @@ class PullRequestItem(dict):
             return auth.get("login", "")
         return str(auth or "")
 
+    @author_login.setter
+    def author_login(self, value: str) -> None:
+        self["author_login"] = value
+
     @property
     def state(self) -> str:
         return str(self.get("state", "OPEN")).upper()
+
+    @state.setter
+    def state(self, value: str) -> None:
+        self["state"] = value
 
     @property
     def url(self) -> str:
         return self.get("url") or self.get("html_url", "")
 
+    @url.setter
+    def url(self, value: str) -> None:
+        self["url"] = value
+
     @property
     def created_at(self) -> str:
         return self.get("createdAt") or self.get("created_at", "")
+
+    @created_at.setter
+    def created_at(self, value: str) -> None:
+        self["created_at"] = value
 
     @property
     def updated_at(self) -> str:
         return self.get("updatedAt") or self.get("updated_at", "")
 
+    @updated_at.setter
+    def updated_at(self, value: str) -> None:
+        self["updated_at"] = value
+
     @property
     def merged_at(self) -> str | None:
         return self.get("mergedAt") or self.get("merged_at")
+
+    @merged_at.setter
+    def merged_at(self, value: str | None) -> None:
+        self["merged_at"] = value
 
     @property
     def closed_at(self) -> str | None:
         return self.get("closedAt") or self.get("closed_at")
 
+    @closed_at.setter
+    def closed_at(self, value: str | None) -> None:
+        self["closed_at"] = value
+
     @property
     def head_ref(self) -> str:
         return self.get("headRefName") or self.get("head_ref", "")
+
+    @head_ref.setter
+    def head_ref(self, value: str) -> None:
+        self["head_ref"] = value
 
     @property
     def base_ref(self) -> str:
         return self.get("baseRefName") or self.get("base_ref", "")
 
+    @base_ref.setter
+    def base_ref(self, value: str) -> None:
+        self["base_ref"] = value
+
     @property
     def is_draft(self) -> bool:
         return bool(self.get("isDraft") or self.get("is_draft", False))
+
+    @is_draft.setter
+    def is_draft(self, value: bool) -> None:
+        self["is_draft"] = bool(value)
 
     @property
     def is_own(self) -> bool:
@@ -363,31 +538,65 @@ class PullRequestItem(dict):
 
     @is_own.setter
     def is_own(self, value: bool) -> None:
-        self["is_own"] = value
+        self["is_own"] = bool(value)
 
     @property
     def commits(self) -> list[Any]:
-        return self.setdefault("commits", [])
+        raw = self.setdefault("commits", [])
+        return [CommitItem(c) if isinstance(c, dict) and not isinstance(c, CommitItem) else c for c in raw]
+
+    @commits.setter
+    def commits(self, value: list[Any]) -> None:
+        self["commits"] = [CommitItem(c) if isinstance(c, dict) and not isinstance(c, CommitItem) else c for c in value]
 
     @property
     def author_commits(self) -> list[Any]:
-        return self.setdefault("author_commits", [])
+        raw = self.setdefault("author_commits", [])
+        return [CommitItem(c) if isinstance(c, dict) and not isinstance(c, CommitItem) else c for c in raw]
+
+    @author_commits.setter
+    def author_commits(self, value: list[Any]) -> None:
+        self["author_commits"] = [CommitItem(c) if isinstance(c, dict) and not isinstance(c, CommitItem) else c for c in value]
 
     @property
     def files_changed(self) -> list[str]:
         return self.get("files_changed", self.get("files", []))
 
+    @files_changed.setter
+    def files_changed(self, value: list[str]) -> None:
+        self["files_changed"] = value
+
+    @property
+    def files(self) -> list[str]:
+        return self.get("files", self.get("files_changed", []))
+
+    @files.setter
+    def files(self, value: list[str]) -> None:
+        self["files"] = value
+
     @property
     def labels(self) -> list[Any]:
         return self.get("labels", [])
+
+    @labels.setter
+    def labels(self, value: list[Any]) -> None:
+        self["labels"] = value
 
     @property
     def bullets(self) -> list[str]:
         return self.setdefault("bullets", [])
 
+    @bullets.setter
+    def bullets(self, value: list[str]) -> None:
+        self["bullets"] = value
+
     @property
     def comments(self) -> list[Any]:
         return self.setdefault("comments", [])
+
+    @comments.setter
+    def comments(self, value: list[Any]) -> None:
+        self["comments"] = value
 
     @property
     def category(self) -> str:
@@ -405,12 +614,20 @@ class PullRequestItem(dict):
     def repo_name(self, value: str) -> None:
         self["repo_name"] = value
 
+    @property
+    def project_name(self) -> str:
+        return self.get("project_name", "")
+
+    @project_name.setter
+    def project_name(self, value: str) -> None:
+        self["project_name"] = value
+
     def to_info(self) -> PullRequestInfo:
         return PullRequestInfo.from_dict(self)
 
 
 @dataclass
-class ReviewInfo:
+class ReviewInfo(metaclass=ABCMeta):
     """Details of a submitted pull request review."""
 
     pr_number: int
@@ -444,17 +661,25 @@ class ReviewInfo:
 class ReviewItem(dict):
     """Dictionary subclass providing transparent attribute access for ReviewInfo compatibility."""
 
+    def __getattr__(self, name: str) -> Any:
+        if name in self:
+            return self[name]
+        raise AttributeError(f"{type(self).__name__!r} object has no attribute {name!r}")
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        self[name] = value
+
     @property
     def pr_number(self) -> int:
         return self.get("pr_number", 0)
 
     @pr_number.setter
     def pr_number(self, value: int) -> None:
-        self["pr_number"] = value
+        self["pr_number"] = int(value)
 
     @property
     def pr_title(self) -> str:
-        return self.get("pr_title", "")
+        return self.get("pr_title") or self.get("title", "")
 
     @pr_title.setter
     def pr_title(self, value: str) -> None:
@@ -469,21 +694,41 @@ class ReviewItem(dict):
             return user.get("login", "")
         return str(user or "")
 
+    @reviewer.setter
+    def reviewer(self, value: str) -> None:
+        self["reviewer"] = value
+
     @property
     def state(self) -> str:
         return str(self.get("state", "COMMENTED")).upper()
+
+    @state.setter
+    def state(self, value: str) -> None:
+        self["state"] = value
 
     @property
     def submitted_at(self) -> str:
         return self.get("submitted_at") or self.get("submittedAt", "")
 
+    @submitted_at.setter
+    def submitted_at(self, value: str) -> None:
+        self["submitted_at"] = value
+
     @property
     def url(self) -> str:
         return self.get("url") or self.get("html_url", "")
 
+    @url.setter
+    def url(self, value: str) -> None:
+        self["url"] = value
+
     @property
     def body(self) -> str:
         return self.get("body", "")
+
+    @body.setter
+    def body(self, value: str) -> None:
+        self["body"] = value
 
     @property
     def comments(self) -> list[str]:
@@ -516,3 +761,8 @@ class ReviewItem(dict):
     @category.setter
     def category(self, value: str) -> None:
         self["category"] = value
+
+
+CommitInfo.register(CommitItem)
+PullRequestInfo.register(PullRequestItem)
+ReviewInfo.register(ReviewItem)
