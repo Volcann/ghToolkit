@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 import re
 import subprocess
 from datetime import date, datetime, timedelta, timezone
@@ -34,7 +33,11 @@ def run_git_command(
             timeout=timeout,
         )
         return res.stdout
-    except (subprocess.CalledProcessError, subprocess.TimeoutExpired, FileNotFoundError):
+    except (
+        subprocess.CalledProcessError,
+        subprocess.TimeoutExpired,
+        FileNotFoundError,
+    ):
         return None
 
 
@@ -285,7 +288,9 @@ def get_local_pr_details(
                     ["diff-tree", "--no-commit-id", "--name-only", "-r", ch],
                     cwd=local_path,
                 )
-                c_files = [f.strip() for f in c_files_out.splitlines()] if c_files_out else []
+                c_files = (
+                    [f.strip() for f in c_files_out.splitlines()] if c_files_out else []
+                )
                 commits_list.append(
                     CommitItem(
                         {
@@ -315,7 +320,11 @@ def get_local_pr_details(
         ["diff", "--name-only", f"{h}^1...{h}^2"],
         cwd=local_path,
     )
-    pr_files = [f.strip() for f in pr_files_out.splitlines() if f.strip()] if pr_files_out else []
+    pr_files = (
+        [f.strip() for f in pr_files_out.splitlines() if f.strip()]
+        if pr_files_out
+        else []
+    )
 
     matcher = registry.is_match if registry else is_author_match
     is_own = matcher(author, name=an, email=ae) if author else True
@@ -370,7 +379,9 @@ def get_local_commit_pull_requests(
                 return [{"number": int(m.group(1))}]
 
     # Check commit message for #<number>
-    c_msg = run_git_command(["log", "-n", "1", "--format=%s", commit_sha], cwd=local_path)
+    c_msg = run_git_command(
+        ["log", "-n", "1", "--format=%s", commit_sha], cwd=local_path
+    )
     if c_msg:
         m_num = re.search(r"#(\d+)", c_msg)
         if m_num:

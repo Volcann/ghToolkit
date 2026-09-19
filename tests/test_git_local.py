@@ -1,7 +1,5 @@
 from datetime import date
-import tempfile
 import unittest
-from pathlib import Path
 from unittest.mock import patch
 
 from ghtoolkit import run_git_command
@@ -9,9 +7,7 @@ from ghtoolkit.git_local import (
     get_local_commit_branch,
     get_local_commit_pull_requests,
     get_local_commits_for_date,
-    get_local_pr_details,
     get_local_prs_for_date,
-    get_local_reviewed_prs_for_date,
     is_merge_commit_message,
 )
 
@@ -27,7 +23,10 @@ class GitLocalTests(unittest.TestCase):
 
     @patch("ghtoolkit.git_local.run_git_command")
     def test_get_local_commits_for_date(self, mock_git):
-        raw_log = "a" * 40 + "\x1ffeat: my commit\x1fdescription\x1fMohsin Ali\x1fmohsin@test.com\x1f2026-10-09T14:00:00+00:00\x1e"
+        raw_log = (
+            "a" * 40
+            + "\x1ffeat: my commit\x1fdescription\x1fMohsin Ali\x1fmohsin@test.com\x1f2026-10-09T14:00:00+00:00\x1e"
+        )
         mock_git.side_effect = [
             raw_log,  # log
             "  feature/auth\n* main\n",  # branch --contains
@@ -49,7 +48,8 @@ class GitLocalTests(unittest.TestCase):
         raw_merge_log = f"{h}\x1fMerge pull request #45 from feature/payments\x1fPayment gateway additions\x1fMohsin Ali\x1fmohsin@test.com\x1f2026-10-09T15:00:00+00:00"
         mock_git.side_effect = [
             raw_merge_log,  # merge log
-            "c" * 40 + "\x1fAdd stripe handler\x1f\x1fMohsin Ali\x1fmohsin@test.com\x1f2026-10-09T14:30:00+00:00",  # pr commits
+            "c" * 40
+            + "\x1fAdd stripe handler\x1f\x1fMohsin Ali\x1fmohsin@test.com\x1f2026-10-09T14:30:00+00:00",  # pr commits
         ]
 
         prs = get_local_prs_for_date("/dummy/repo", "volcann", date(2026, 10, 9))
@@ -71,7 +71,9 @@ class GitLocalTests(unittest.TestCase):
     @patch("ghtoolkit.git_local.run_git_command")
     def test_get_local_commit_branch(self, mock_git):
         mock_git.return_value = "  main\n  feature/JIRA-101-auth\n"
-        branch = get_local_commit_branch("/dummy/repo", "sha123", commit_message="JIRA-101: fix auth")
+        branch = get_local_commit_branch(
+            "/dummy/repo", "sha123", commit_message="JIRA-101: fix auth"
+        )
         self.assertEqual(branch, "feature/JIRA-101-auth")
 
 
