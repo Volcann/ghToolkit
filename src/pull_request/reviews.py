@@ -92,30 +92,33 @@ class ReviewService:
     def _validate_comment(comment: InlineReviewComment) -> dict[str, Any]:
         if not isinstance(comment, dict):
             raise TypeError("Each inline comment must be a dictionary")
+        c = dict(comment)
+        if "side" not in c and "path" in c and "line" in c and "body" in c:
+            c["side"] = "RIGHT"
         required = {"path", "line", "side", "body"}
         allowed = required | {"start_line", "start_side"}
-        if not required <= comment.keys() or not comment.keys() <= allowed:
+        if not required <= c.keys() or not c.keys() <= allowed:
             raise ValueError("Inline comments require path, line, side, and body")
-        path = nonempty(comment["path"], "comment.path")
+        path = nonempty(c["path"], "comment.path")
         if (
             PurePosixPath(path).is_absolute()
             or ".." in PurePosixPath(path).parts
             or "\\" in path
         ):
             raise ValueError("comment.path must be a repository-relative POSIX path")
-        positive_number(comment["line"], "comment.line")
-        nonempty(comment["body"], "comment.body")
-        if comment["side"] not in {"LEFT", "RIGHT"}:
+        positive_number(c["line"], "comment.line")
+        nonempty(c["body"], "comment.body")
+        if c["side"] not in {"LEFT", "RIGHT"}:
             raise ValueError("comment.side must be LEFT or RIGHT")
-        if "start_line" in comment:
-            positive_number(comment["start_line"], "comment.start_line")
-            if comment.get("start_side") not in {"LEFT", "RIGHT"}:
+        if "start_line" in c:
+            positive_number(c["start_line"], "comment.start_line")
+            if c.get("start_side") not in {"LEFT", "RIGHT"}:
                 raise ValueError("Multiline comments require start_side")
             if (
-                comment["start_side"] == comment["side"]
-                and comment["start_line"] > comment["line"]
+                c["start_side"] == c["side"]
+                and c["start_line"] > c["line"]
             ):
                 raise ValueError("start_line cannot exceed line on the same side")
-        elif "start_side" in comment:
+        elif "start_side" in c:
             raise ValueError("start_side requires start_line")
-        return dict(comment)
+        return c
