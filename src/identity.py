@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Iterable, Mapping, Sequence
+from typing import Iterable, Mapping
 
 # Default alias groups for known team members
 DEFAULT_ALIASES: dict[str, set[str]] = {

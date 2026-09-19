@@ -1,6 +1,6 @@
 import unittest
 
-from ghtoolkit import AuthorRegistry, is_author_match, register_author_alias
+from ghtoolkit import AuthorRegistry, is_author_match
 
 
 class IdentityTests(unittest.TestCase):
@@ -18,7 +18,9 @@ class IdentityTests(unittest.TestCase):
 
     def test_negative_matching(self):
         self.assertFalse(is_author_match("Volcann", login="unknown_contributor"))
-        self.assertFalse(is_author_match("Volcann", name="Random Person", email="random@test.com"))
+        self.assertFalse(
+            is_author_match("Volcann", name="Random Person", email="random@test.com")
+        )
         self.assertFalse(is_author_match("", login="any"))
 
     def test_custom_alias_registration(self):
