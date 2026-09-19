@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any
 
 from .identity import is_author_match
 
@@ -33,7 +33,9 @@ class CommentCache:
         except OSError:
             pass
 
-    def get_comments(self, repo_key: str, pr_number: int) -> list[dict[str, Any]] | None:
+    def get_comments(
+        self, repo_key: str, pr_number: int
+    ) -> list[dict[str, Any]] | None:
         data = self.load()
         return data.get(repo_key, {}).get(str(pr_number))
 
@@ -90,17 +92,26 @@ def fetch_pr_user_comments(
     new_cache_entries: list[dict[str, Any]] = []
     for endpoint in endpoints:
         try:
-            # Check if runner or api provided
-            if hasattr(api_or_client, "_api") and hasattr(api_or_client._api, "list"):
-                raw_data = api_or_client._api.list(endpoint.replace(f"repos/{repo_key}/", ""))
+            raw_data = None
+            if hasattr(api_or_client, "_rest_get") and (
+                not getattr(api_or_client, "prefer_cli", True)
+                or not getattr(api_or_client, "has_gh_cli", True)
+            ):
+                raw_data = api_or_client._rest_get(endpoint)
+            elif hasattr(api_or_client, "_api") and hasattr(api_or_client._api, "list"):
+                raw_data = api_or_client._api.list(
+                    endpoint.replace(f"repos/{repo_key}/", "")
+                )
             elif hasattr(api_or_client, "list"):
-                raw_data = api_or_client.list(endpoint.replace(f"repos/{repo_key}/", ""))
+                raw_data = api_or_client.list(
+                    endpoint.replace(f"repos/{repo_key}/", "")
+                )
             elif hasattr(api_or_client, "run_json"):
                 raw_data = api_or_client.run_json("api", endpoint)
             elif hasattr(api_or_client, "_run_gh_command"):
                 raw_data = api_or_client._run_gh_command(["api", endpoint])
-            else:
-                raw_data = None
+            elif hasattr(api_or_client, "_rest_get"):
+                raw_data = api_or_client._rest_get(endpoint)
         except Exception:
             raw_data = None
 
