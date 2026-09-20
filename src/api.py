@@ -36,6 +36,10 @@ class Repository:
         return cls(host.lower(), owner, name)
 
     @property
+    def full_name(self) -> str:
+        return f"{self.owner}/{self.name}"
+
+    @property
     def cli_name(self) -> str:
         return f"{self.host}/{self.owner}/{self.name}"
 
