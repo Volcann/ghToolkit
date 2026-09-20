@@ -1,11 +1,9 @@
 from __future__ import annotations
 
-import json
 import os
-import re
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Sequence
 
 from .identity import AuthorRegistry, is_author_match
 from .runner import GhRunner
@@ -126,7 +124,11 @@ def scan_foreign_pr(
 
     labels = data.get("labels", [])
     for label in labels:
-        lbl_name = label.get("name", "").lower() if isinstance(label, dict) else str(label).lower()
+        lbl_name = (
+            label.get("name", "").lower()
+            if isinstance(label, dict)
+            else str(label).lower()
+        )
         if lbl_name in invalid_set:
             return pr_number, False, []
 

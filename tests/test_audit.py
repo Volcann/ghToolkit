@@ -2,7 +2,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from ghtoolkit import ProgressQueue, get_pr_state, scan_contributor_contributions, scan_foreign_pr
+from ghtoolkit import ProgressQueue, get_pr_state, scan_foreign_pr
 from tests.helpers import FakeRunner
 
 
