@@ -17,10 +17,9 @@ source .venv/bin/activate
 python -m pip install -e .
 gh auth login
 gh auth status
-python main.py
+python -m unittest discover -s tests -v
 ```
 
-`main.py` prints the real output of `gh version`; no version is hardcoded.
 Run `gh auth login --hostname YOUR_HOST` for a GitHub Enterprise host.
 Git is additionally required for local PR checkout.
 
@@ -29,9 +28,7 @@ With uv:
 ```bash
 uv sync --locked
 gh auth login
-uv run python main.py
 uv run python -m unittest discover -s tests -v
-uv run python examples/offline_demo.py
 ```
 
 Custom timezones use the operating system's IANA timezone database. On systems
@@ -42,31 +39,32 @@ Python environment. UTC works without an external timezone database.
 
 ```text
 ghToolkit/
-├── examples/
-│   ├── __init__.py
-│   ├── branch_commits.py
-│   ├── offline_demo.py
-│   └── read_pr.py
 ├── LICENSE
-├── main.py
 ├── Makefile
 ├── MANIFEST.in
-├── projects.json
 ├── pyproject.toml
 ├── README.md
+├── TEST_RESULTS.txt
+├── WHY_IT_EXISTS.md
+├── uv.lock
 ├── src/
 │   ├── __init__.py
 │   ├── api.py
+│   ├── audit.py
+│   ├── comments.py
 │   ├── commit/
 │   │   ├── __init__.py
 │   │   └── service.py
 │   ├── dates.py
 │   ├── diff_store.py
 │   ├── errors.py
+│   ├── git_local.py
 │   ├── github_client.py
+│   ├── identity.py
 │   ├── issues/
 │   │   ├── __init__.py
 │   │   └── service.py
+│   ├── models.py
 │   ├── pull_request/
 │   │   ├── __init__.py
 │   │   ├── reviews.py
@@ -74,25 +72,27 @@ ghToolkit/
 │   ├── py.typed
 │   ├── runner.py
 │   └── validation.py
-├── temp/
-│   └── .gitkeep
-├── TEST_RESULTS.txt
-├── tests/
-│   ├── __init__.py
-│   ├── helpers.py
-│   ├── test_api.py
-│   ├── test_commits.py
-│   ├── test_dates.py
-│   ├── test_diffs.py
-│   ├── test_pull_requests.py
-│   ├── test_reviews.py
-│   └── test_runner.py
-└── uv.lock
+└── tests/
+    ├── __init__.py
+    ├── helpers.py
+    ├── test_api.py
+    ├── test_audit.py
+    ├── test_comments.py
+    ├── test_commits.py
+    ├── test_dates.py
+    ├── test_diffs.py
+    ├── test_ecosystem_compatibility.py
+    ├── test_git_local.py
+    ├── test_identity.py
+    ├── test_models.py
+    ├── test_pull_requests.py
+    ├── test_reviews.py
+    ├── test_runner.py
+    └── test_unified_client.py
 ```
 
 `pyproject.toml` maps the import package `ghtoolkit` to `src/`. Install the project
-before running its scripts or importing it from another project. `projects.json`
-is an example of constructor settings, not an implicitly loaded configuration.
+before importing it from another project.
 
 ## Facade design
 
@@ -449,19 +449,13 @@ Then import `GitHubClient` from `ghtoolkit`. Existing text-diff consumers can us
 The methods use one configured repository per client. No environment-variable
 configuration or working-directory repository discovery is required.
 
-## Examples and tests
+## Running tests
 
 ```bash
-python examples/offline_demo.py
-python examples/branch_commits.py OWNER/REPO --branch main --date 2026-10-03 --timezone Asia/Karachi
-python examples/read_pr.py OWNER/REPO 123
 python -m unittest discover -s tests -v
 ```
 
-The offline demo uses explicitly synthetic fixtures and writes example diff files
-without invoking `gh` or contacting GitHub. Tests use mocked GitHub responses and
-real local subprocesses; the patch-preservation test also runs `git apply --check`
-when Git is installed. The distribution includes the actual test run in
+Tests use mocked GitHub responses and real local subprocesses without invoking network; the patch-preservation test also runs `git apply --check` when Git is installed. The distribution records actual test outputs in `TEST_RESULTS.txt`.
 ## Universal Ecosystem Integration (Replacing Legacy Clients)
 
 `ghToolkit` is the unified, high-performance replacement for the disparate GitHub clients previously found across:

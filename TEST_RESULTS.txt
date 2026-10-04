@@ -56,8 +56,20 @@ test_saved_unified_diff_passes_git_apply_check (test_diffs.DiffTests.test_saved_
 test_storage_failure_is_reported_and_partial_files_removed (test_diffs.DiffTests.test_storage_failure_is_reported_and_partial_files_removed) ... ok
 test_lazy_reviewer_reuse_workflow (test_ecosystem_compatibility.EcosystemCompatibilityTests.test_lazy_reviewer_reuse_workflow)
 Simulate lazy-reviewer's reviewer.py and github_client.py operations: ... ok
+test_lazy_reviewer_standalone_functions_and_inline_reviews (test_ecosystem_compatibility.EcosystemCompatibilityTests.test_lazy_reviewer_standalone_functions_and_inline_reviews)
+Verify lazy-reviewer can import and call standalone top-level functions directly. ... ok
+test_lazy_reviewer_with_project_json_target (test_ecosystem_compatibility.EcosystemCompatibilityTests.test_lazy_reviewer_with_project_json_target)
+Verify lazy-reviewer reuse using the project.json HR-Tool repo config. ... ok
+test_pr_alias_package_import (test_ecosystem_compatibility.EcosystemCompatibilityTests.test_pr_alias_package_import)
+Verify ghtoolkit.pr package alias is importable and matches pull_request. ... ok
+test_project_json_configuration_loading (test_ecosystem_compatibility.EcosystemCompatibilityTests.test_project_json_configuration_loading)
+Verify project.json holds exact HR-Tool projects and loads cleanly. ... ok
 test_volcanai_reuse_workflow (test_ecosystem_compatibility.EcosystemCompatibilityTests.test_volcanai_reuse_workflow)
 Simulate volcanai's cron_job audit and metadata logging operations: ... ok
+test_worked_task_collector_mutations (test_ecosystem_compatibility.EcosystemCompatibilityTests.test_worked_task_collector_mutations)
+Verify PullRequestItem, CommitItem, and ReviewItem support workedTask collector mutations. ... ok
+test_worked_task_rest_client_mock_tests (test_ecosystem_compatibility.EcosystemCompatibilityTests.test_worked_task_rest_client_mock_tests)
+Verify GitHubClient executes all 5 workedTask REST mock tests identically. ... ok
 test_worked_task_reuse_workflow (test_ecosystem_compatibility.EcosystemCompatibilityTests.test_worked_task_reuse_workflow)
 Simulate workedTask's collector.py and github_client.py operations: ... ok
 test_get_local_commit_branch (test_git_local.GitLocalTests.test_get_local_commit_branch) ... ok
@@ -70,6 +82,11 @@ test_custom_alias_registration (test_identity.IdentityTests.test_custom_alias_re
 test_default_author_matching (test_identity.IdentityTests.test_default_author_matching) ... ok
 test_negative_matching (test_identity.IdentityTests.test_negative_matching) ... ok
 test_team_member_aliases (test_identity.IdentityTests.test_team_member_aliases) ... ok
+test_issue_comments_endpoint (test_issues.IssueServiceTests.test_issue_comments_endpoint) ... ok
+test_issue_comments_invalid_number_rejected (test_issues.IssueServiceTests.test_issue_comments_invalid_number_rejected) ... ok
+test_module_import (test_issues.IssueServiceTests.test_module_import) ... ok
+test_post_pr_comment_empty_body_rejected (test_issues.IssueServiceTests.test_post_pr_comment_empty_body_rejected) ... ok
+test_post_pr_comment_success (test_issues.IssueServiceTests.test_post_pr_comment_success) ... ok
 test_commit_item_dict_and_attributes (test_models.ModelTests.test_commit_item_dict_and_attributes) ... ok
 test_project_config (test_models.ModelTests.test_project_config) ... ok
 test_pull_request_item_dict_and_attributes (test_models.ModelTests.test_pull_request_item_dict_and_attributes) ... ok
@@ -138,6 +155,6 @@ test_load_projects_file (test_unified_client.UnifiedClientTests.test_load_projec
 test_save_pr_diff (test_unified_client.UnifiedClientTests.test_save_pr_diff) ... ok
 
 ----------------------------------------------------------------------
-Ran 135 tests in 0.355s
+Ran 146 tests in 0.392s
 
 OK
