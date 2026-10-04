@@ -1,4 +1,4 @@
-.PHONY: install test demo run clean lint lints lint-check format pre-commit ci
+.PHONY: install test clean lint lints lint-check format pre-commit ci
 
 SHELL := /bin/bash
 
@@ -9,12 +9,6 @@ PYTHON ?= $(shell if [ -f .venv/bin/python ]; then echo .venv/bin/python; elif c
 # ------------------------
 install:
 	$(PYTHON) -m pip install -e .
-
-demo:
-	$(PYTHON) examples/offline_demo.py
-
-run:
-	$(PYTHON) main.py
 
 # ------------------------
 # Tests
