@@ -1,6 +1,4 @@
-include LICENSE README.md Makefile main.py projects.json TEST_RESULTS.txt uv.lock
+include LICENSE README.md Makefile TEST_RESULTS.txt uv.lock WHY_IT_EXISTS.md project.json projects.json
 recursive-include src *.py py.typed
-recursive-include examples *.py
 recursive-include tests *.py
-prune temp
 global-exclude __pycache__ *.py[cod]

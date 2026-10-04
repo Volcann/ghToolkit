@@ -12,7 +12,7 @@ license = {file = "LICENSE"}
 dependencies = []
 
 [tool.setuptools]
-packages = ["ghtoolkit", "ghtoolkit.commit", "ghtoolkit.issues", "ghtoolkit.pull_request"]
+packages = ["ghtoolkit", "ghtoolkit.commit", "ghtoolkit.issues", "ghtoolkit.pr", "ghtoolkit.pull_request"]
 
 [tool.setuptools.package-dir]
 ghtoolkit = "src"
