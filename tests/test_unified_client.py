@@ -3,8 +3,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from ghtoolkit import GitHubClient, ProjectConfig
-from tests.helpers import FakeRunner, pr
+from ghtoolkit import GitHubClient
+from tests.helpers import FakeRunner
 
 
 class UnifiedClientTests(unittest.TestCase):
@@ -25,8 +25,18 @@ class UnifiedClientTests(unittest.TestCase):
     def test_load_projects_file(self):
         projects_path = Path(self.temp_dir.name) / "projects.json"
         projects_data = [
-            {"owner": "org1", "repo": "backend", "name": "API Service", "author": "volcann"},
-            {"owner": "org2", "repo": "frontend", "name": "Web Client", "author": "alice"},
+            {
+                "owner": "org1",
+                "repo": "backend",
+                "name": "API Service",
+                "author": "volcann",
+            },
+            {
+                "owner": "org2",
+                "repo": "frontend",
+                "name": "Web Client",
+                "author": "alice",
+            },
         ]
         projects_path.write_text(json.dumps(projects_data))
 
@@ -36,13 +46,22 @@ class UnifiedClientTests(unittest.TestCase):
         self.assertEqual(projects[1].owner, "org2")
 
     def test_author_alias_registration_on_client(self):
-        client = GitHubClient("owner/repo", runner=FakeRunner(), temp_dir=self.temp_dir.name)
+        client = GitHubClient(
+            "owner/repo", runner=FakeRunner(), temp_dir=self.temp_dir.name
+        )
         self.assertFalse(client.is_author_match("custom_lead", login="lead_dev_handle"))
         client.register_author_alias("custom_lead", ["lead_dev_handle"])
         self.assertTrue(client.is_author_match("custom_lead", login="lead_dev_handle"))
 
     def test_get_all_prs(self):
-        runner = FakeRunner(json_results=[[{"number": 1, "author": {"login": "dev1"}}, {"number": 2, "author": {"login": "dev2"}}]])
+        runner = FakeRunner(
+            json_results=[
+                [
+                    {"number": 1, "author": {"login": "dev1"}},
+                    {"number": 2, "author": {"login": "dev2"}},
+                ]
+            ]
+        )
         client = GitHubClient("owner/repo", runner=runner, temp_dir=self.temp_dir.name)
         prs = client.get_all_prs(state="all", limit=100)
         self.assertEqual(len(prs), 2)
