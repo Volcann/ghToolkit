@@ -35,7 +35,9 @@ def is_author_match(
     targets = {t}
     # Match user aliases for Volcann / Mohsin Ali
     if t in ("volcann", "mohsin ali", "mohsin"):
-        targets.update({"volcann", "mohsin ali", "mohsin", "mohsinmuhammad823@gmail.com"})
+        targets.update(
+            {"volcann", "mohsin ali", "mohsin", "mohsinmuhammad823@gmail.com"}
+        )
 
     name_lower = name.strip().lower()
     email_lower = email.strip().lower()
@@ -125,7 +127,9 @@ class GitHubClient:
             logger.debug("gh command failed (%s): %s", cmd, e)
             return None
 
-    def _rest_get(self, endpoint: str, params: dict[str, Any] | None = None) -> Any | None:
+    def _rest_get(
+        self, endpoint: str, params: dict[str, Any] | None = None
+    ) -> Any | None:
         """Query GitHub REST API with session headers."""
         url = f"https://api.github.com/{endpoint.lstrip('/')}"
         try:
@@ -189,7 +193,8 @@ class GitHubClient:
                             commit_dt = datetime.fromisoformat(dt_clean)
                             if (
                                 commit_dt.date() != target_date
-                                and commit_dt.astimezone(timezone.utc).date() != target_date
+                                and commit_dt.astimezone(timezone.utc).date()
+                                != target_date
                             ):
                                 continue
                         except Exception:
@@ -216,7 +221,9 @@ class GitHubClient:
                             cwd=local_path,
                         )
                         if files_out:
-                            commit_files = [f.strip() for f in files_out.splitlines() if f.strip()]
+                            commit_files = [
+                                f.strip() for f in files_out.splitlines() if f.strip()
+                            ]
 
                         local_commits.append(
                             CommitInfo(
@@ -350,13 +357,17 @@ class GitHubClient:
                                         continue
                                     if not primary_title:
                                         primary_title = cs
-                                    is_match = is_author_match(author, name=can, email=cae)
+                                    is_match = is_author_match(
+                                        author, name=can, email=cae
+                                    )
                                     commits_list.append(
                                         CommitInfo(
                                             sha=ch,
                                             message=f"{cs}\n\n{cb}".strip(),
                                             author_name=can,
-                                            author_login=can if not is_match else author,
+                                            author_login=can
+                                            if not is_match
+                                            else author,
                                             date=cdt,
                                             pr_number=pr_num,
                                         )
@@ -383,7 +394,9 @@ class GitHubClient:
                                 ]
                             )
                         if pr_data is None:
-                            pr_data = self._rest_get(f"repos/{owner}/{repo}/pulls/{pr_num}")
+                            pr_data = self._rest_get(
+                                f"repos/{owner}/{repo}/pulls/{pr_num}"
+                            )
 
                         pr_author = ""
                         if isinstance(pr_data, dict):
@@ -458,7 +471,9 @@ class GitHubClient:
             url = item.get("html_url") or item.get("url", "")
             created_at = item.get("created_at") or item.get("createdAt", "")
             head_ref = item.get("headRefName", "") or (
-                item.get("head", {}).get("ref", "") if isinstance(item.get("head"), dict) else ""
+                item.get("head", {}).get("ref", "")
+                if isinstance(item.get("head"), dict)
+                else ""
             )
 
             commits_list: list[CommitInfo] = []
@@ -469,8 +484,14 @@ class GitHubClient:
                     c_sha = c.get("oid") or c.get("sha", "")
                     c_msg = c.get("messageHeadline") or c.get("message", "")
                     c_auth = ""
-                    if c.get("authors") and isinstance(c["authors"], list) and c["authors"]:
-                        c_auth = c["authors"][0].get("login") or c["authors"][0].get("name", "")
+                    if (
+                        c.get("authors")
+                        and isinstance(c["authors"], list)
+                        and c["authors"]
+                    ):
+                        c_auth = c["authors"][0].get("login") or c["authors"][0].get(
+                            "name", ""
+                        )
                     elif c.get("author") and isinstance(c["author"], dict):
                         c_auth = c["author"].get("login") or c["author"].get("name", "")
                     commits_list.append(
@@ -492,7 +513,9 @@ class GitHubClient:
                     url=url,
                     created_at=created_at,
                     head_ref=head_ref,
-                    is_own=author_login.lower() == author.lower() if author_login else True,
+                    is_own=author_login.lower() == author.lower()
+                    if author_login
+                    else True,
                     commits=commits_list,
                     repo_name=repo,
                 )
@@ -546,12 +569,20 @@ class GitHubClient:
                                 ch, cs, cb, can, cae, cdt = cp[:6]
                                 commit_files: list[str] = []
                                 c_files_out = self._run_git_command(
-                                    ["diff-tree", "--no-commit-id", "--name-only", "-r", ch],
+                                    [
+                                        "diff-tree",
+                                        "--no-commit-id",
+                                        "--name-only",
+                                        "-r",
+                                        ch,
+                                    ],
                                     cwd=local_path,
                                 )
                                 if c_files_out:
                                     commit_files = [
-                                        f.strip() for f in c_files_out.splitlines() if f.strip()
+                                        f.strip()
+                                        for f in c_files_out.splitlines()
+                                        if f.strip()
                                     ]
 
                                 commits_list.append(
@@ -581,11 +612,17 @@ class GitHubClient:
                         cwd=local_path,
                     )
                     if pr_files_out:
-                        pr_files = [f.strip() for f in pr_files_out.splitlines() if f.strip()]
+                        pr_files = [
+                            f.strip() for f in pr_files_out.splitlines() if f.strip()
+                        ]
 
                     pr_author = an
                     if head_ref:
-                        ref_parts = [p.upper() for p in head_ref.replace("/", "-").split("-") if p]
+                        ref_parts = [
+                            p.upper()
+                            for p in head_ref.replace("/", "-").split("-")
+                            if p
+                        ]
                         if "MM" in ref_parts:
                             pr_author = author or "Volcann"
                         elif "MB" in ref_parts:
@@ -596,13 +633,19 @@ class GitHubClient:
                             pr_author = "Uzair Maqsood"
 
                     if pr_author == an and commits_list:
-                        c_authors = [c.author_name for c in commits_list if c.author_name]
+                        c_authors = [
+                            c.author_name for c in commits_list if c.author_name
+                        ]
                         if c_authors and author:
-                            if all(is_author_match(author, name=ca) for ca in c_authors):
+                            if all(
+                                is_author_match(author, name=ca) for ca in c_authors
+                            ):
                                 pr_author = author
 
                     is_own_pr = (
-                        is_author_match(author, login=pr_author, name=pr_author) if author else True
+                        is_author_match(author, login=pr_author, name=pr_author)
+                        if author
+                        else True
                     )
 
                     return PullRequestInfo(
@@ -652,13 +695,17 @@ class GitHubClient:
         url = data.get("html_url") or data.get("url", "")
         created_at = data.get("created_at") or data.get("createdAt", "")
         head_ref = data.get("headRefName", "") or (
-            data.get("head", {}).get("ref", "") if isinstance(data.get("head"), dict) else ""
+            data.get("head", {}).get("ref", "")
+            if isinstance(data.get("head"), dict)
+            else ""
         )
 
         commits_list: list[CommitInfo] = []
         raw_commits = data.get("commits")
         if raw_commits is None:
-            raw_commits = self._rest_get(f"repos/{owner}/{repo}/pulls/{pr_number}/commits")
+            raw_commits = self._rest_get(
+                f"repos/{owner}/{repo}/pulls/{pr_number}/commits"
+            )
 
         if isinstance(raw_commits, list):
             for c in raw_commits:
@@ -672,7 +719,9 @@ class GitHubClient:
                 )
                 c_auth = ""
                 if c.get("authors") and isinstance(c["authors"], list) and c["authors"]:
-                    c_auth = c["authors"][0].get("login") or c["authors"][0].get("name", "")
+                    c_auth = c["authors"][0].get("login") or c["authors"][0].get(
+                        "name", ""
+                    )
                 elif c.get("author") and isinstance(c["author"], dict):
                     c_auth = c["author"].get("login") or c["author"].get("name", "")
 
@@ -730,7 +779,9 @@ class GitHubClient:
 
             if ancestry_out:
                 pr_matches = [
-                    line for line in ancestry_out.splitlines() if "Merge pull request #" in line
+                    line
+                    for line in ancestry_out.splitlines()
+                    if "Merge pull request #" in line
                 ]
                 if pr_matches:
                     earliest_pr = pr_matches[-1]
@@ -781,7 +832,15 @@ class GitHubClient:
                 feature_branches = [
                     b
                     for b in raw_branches
-                    if b not in ("dev", "stage", "main", "master", "origin/dev", "origin/stage")
+                    if b
+                    not in (
+                        "dev",
+                        "stage",
+                        "main",
+                        "master",
+                        "origin/dev",
+                        "origin/stage",
+                    )
                 ]
                 ticket_m = re.search(r"([A-Za-z]{2,}-\d+)", commit_message)
                 if ticket_m:
@@ -840,7 +899,9 @@ class GitHubClient:
                             if is_author_match(author, name=an, email=ae):
                                 clean_t = b.strip().splitlines()[0] if b.strip() else s
                                 # Avoid duplicates
-                                if not any(r.pr_number == pr_num for r in local_reviews):
+                                if not any(
+                                    r.pr_number == pr_num for r in local_reviews
+                                ):
                                     local_reviews.append(
                                         ReviewInfo(
                                             pr_number=pr_num,
@@ -852,9 +913,16 @@ class GitHubClient:
                                     )
                             else:
                                 # Also check if author submitted an approval in commit trailers / comments
-                                if f"Reviewed-by: {author}" in b or f"Approved-by: {author}" in b:
-                                    clean_t = b.strip().splitlines()[0] if b.strip() else s
-                                    if not any(r.pr_number == pr_num for r in local_reviews):
+                                if (
+                                    f"Reviewed-by: {author}" in b
+                                    or f"Approved-by: {author}" in b
+                                ):
+                                    clean_t = (
+                                        b.strip().splitlines()[0] if b.strip() else s
+                                    )
+                                    if not any(
+                                        r.pr_number == pr_num for r in local_reviews
+                                    ):
                                         local_reviews.append(
                                             ReviewInfo(
                                                 pr_number=pr_num,
@@ -879,7 +947,9 @@ class GitHubClient:
                                     if b.strip()
                                     else f"Merged branch {merged_branch}"
                                 )
-                                if not any(r.pr_title == clean_t for r in local_reviews):
+                                if not any(
+                                    r.pr_title == clean_t for r in local_reviews
+                                ):
                                     local_reviews.append(
                                         ReviewInfo(
                                             pr_number=0,
@@ -942,7 +1012,9 @@ class GitHubClient:
                         continue
                     r_user = r.get("user", {}).get("login", "")
                     submitted_at = r.get("submitted_at", "")
-                    if r_user.lower() == author.lower() and submitted_at.startswith(iso_date):
+                    if r_user.lower() == author.lower() and submitted_at.startswith(
+                        iso_date
+                    ):
                         reviewed_prs.append(
                             ReviewInfo(
                                 pr_number=pr_num,

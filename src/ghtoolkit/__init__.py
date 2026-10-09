@@ -1,6 +1,11 @@
 from __future__ import annotations
 
-from .audit import ProgressQueue, get_pr_state, scan_contributor_contributions, scan_foreign_pr
+from .audit import (
+    ProgressQueue,
+    get_pr_state,
+    scan_contributor_contributions,
+    scan_foreign_pr,
+)
 from .commit import CommitService, CommitSummary
 from .core import (
     DateInput,

@@ -1,4 +1,5 @@
 from __future__ import annotations
+from datetime import date
 
 import json
 import subprocess
@@ -34,10 +35,17 @@ def run_gh_json(args: list[str], cwd: str | Path | None = None) -> Any:
 
 
 def fetch_pr_metadata(repo: str, pr_number: int) -> dict[str, Any] | None:
-    return run_gh_json([
-        "pr", "view", str(pr_number), "--repo", repo,
-        "--json", "number,title,author,state,url,createdAt,commits",
-    ])
+    return run_gh_json(
+        [
+            "pr",
+            "view",
+            str(pr_number),
+            "--repo",
+            repo,
+            "--json",
+            "number,title,author,state,url,createdAt,commits",
+        ]
+    )
 
 
 def fetch_pr_diff(repo: str, pr_number: int) -> str:
@@ -45,20 +53,23 @@ def fetch_pr_diff(repo: str, pr_number: int) -> str:
     return result.stdout if result else ""
 
 
-def checkout_pr_branch(
-    repo: str, pr_number: int, local_path: str | Path
-) -> bool:
-    result = run_gh(
-        ["pr", "checkout", str(pr_number), "--repo", repo], cwd=local_path
-    )
+def checkout_pr_branch(repo: str, pr_number: int, local_path: str | Path) -> bool:
+    result = run_gh(["pr", "checkout", str(pr_number), "--repo", repo], cwd=local_path)
     return result is not None
 
 
 def post_pr_comment(repo: str, pr_number: int, comment_file: str | Path) -> bool:
-    result = run_gh([
-        "pr", "comment", str(pr_number), "--repo", repo,
-        "--body-file", str(comment_file),
-    ])
+    result = run_gh(
+        [
+            "pr",
+            "comment",
+            str(pr_number),
+            "--repo",
+            repo,
+            "--body-file",
+            str(comment_file),
+        ]
+    )
     return result is not None
 
 
@@ -71,19 +82,25 @@ def create_pr_review(
     event: str = "COMMENT",
 ) -> bool:
     owner, name = repo.split("/", 1)
-    payload = json.dumps({
-        "commit_id": commit_sha,
-        "body": body,
-        "event": event,
-        "comments": comments,
-    })
+    payload = json.dumps(
+        {
+            "commit_id": commit_sha,
+            "body": body,
+            "event": event,
+            "comments": comments,
+        }
+    )
     result = subprocess.run(
         [
-            "gh", "api",
+            "gh",
+            "api",
             f"/repos/{owner}/{name}/pulls/{pr_number}/reviews",
-            "--method", "POST",
-            "--input", "-",
-            "--header", "Accept: application/vnd.github+json",
+            "--method",
+            "POST",
+            "--input",
+            "-",
+            "--header",
+            "Accept: application/vnd.github+json",
         ],
         input=payload,
         capture_output=True,
@@ -105,10 +122,10 @@ def run_git(args: list[str], cwd: str | Path) -> str:
     except (subprocess.CalledProcessError, FileNotFoundError):
         return ""
 
-from datetime import date
 
 def format_iso_date(dt: date) -> str:
     return dt.strftime("%Y-%m-%d")
+
 
 def clean_commit_message(msg: str) -> str:
     if not msg:
@@ -117,6 +134,7 @@ def clean_commit_message(msg: str) -> str:
     if not lines:
         return ""
     return lines[0]
+
 
 def is_merge_commit(msg: str) -> bool:
     lower = msg.lower()

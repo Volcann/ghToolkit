@@ -23,7 +23,11 @@ def _is_match(
     t = target.strip().lower()
     if not t:
         return False
-    for candidate in (name.strip().lower(), email.strip().lower(), login.strip().lower()):
+    for candidate in (
+        name.strip().lower(),
+        email.strip().lower(),
+        login.strip().lower(),
+    ):
         if candidate and (t == candidate or t in candidate or candidate in t):
             return True
     return False

@@ -10,7 +10,13 @@ from .errors import (
     GhTimeoutError,
     GitHubError,
 )
-from .validation import nonempty, object_list, object_value, positive_number, result_limit
+from .validation import (
+    nonempty,
+    object_list,
+    object_value,
+    positive_number,
+    result_limit,
+)
 
 __all__ = [
     "GitHubError",

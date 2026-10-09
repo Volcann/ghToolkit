@@ -48,7 +48,9 @@ class ReviewItem(dict):
     def __getattr__(self, name: str) -> Any:
         if name in self:
             return self[name]
-        raise AttributeError(f"{type(self).__name__!r} object has no attribute {name!r}")
+        raise AttributeError(
+            f"{type(self).__name__!r} object has no attribute {name!r}"
+        )
 
     def __setattr__(self, name: str, value: Any) -> None:
         self[name] = value
