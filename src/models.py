@@ -146,7 +146,9 @@ class CommitItem(dict):
     def __getattr__(self, name: str) -> Any:
         if name in self:
             return self[name]
-        raise AttributeError(f"{type(self).__name__!r} object has no attribute {name!r}")
+        raise AttributeError(
+            f"{type(self).__name__!r} object has no attribute {name!r}"
+        )
 
     def __setattr__(self, name: str, value: Any) -> None:
         self[name] = value
@@ -262,7 +264,12 @@ class CommitItem(dict):
 
     @property
     def date(self) -> str:
-        return self.get("date") or self.get("committedDate") or self.get("authoredDate") or ""
+        return (
+            self.get("date")
+            or self.get("committedDate")
+            or self.get("authoredDate")
+            or ""
+        )
 
     @date.setter
     def date(self, value: str) -> None:
@@ -418,7 +425,9 @@ class PullRequestItem(dict):
     def __getattr__(self, name: str) -> Any:
         if name in self:
             return self[name]
-        raise AttributeError(f"{type(self).__name__!r} object has no attribute {name!r}")
+        raise AttributeError(
+            f"{type(self).__name__!r} object has no attribute {name!r}"
+        )
 
     def __setattr__(self, name: str, value: Any) -> None:
         self[name] = value
@@ -543,20 +552,40 @@ class PullRequestItem(dict):
     @property
     def commits(self) -> list[Any]:
         raw = self.setdefault("commits", [])
-        return [CommitItem(c) if isinstance(c, dict) and not isinstance(c, CommitItem) else c for c in raw]
+        return [
+            CommitItem(c)
+            if isinstance(c, dict) and not isinstance(c, CommitItem)
+            else c
+            for c in raw
+        ]
 
     @commits.setter
     def commits(self, value: list[Any]) -> None:
-        self["commits"] = [CommitItem(c) if isinstance(c, dict) and not isinstance(c, CommitItem) else c for c in value]
+        self["commits"] = [
+            CommitItem(c)
+            if isinstance(c, dict) and not isinstance(c, CommitItem)
+            else c
+            for c in value
+        ]
 
     @property
     def author_commits(self) -> list[Any]:
         raw = self.setdefault("author_commits", [])
-        return [CommitItem(c) if isinstance(c, dict) and not isinstance(c, CommitItem) else c for c in raw]
+        return [
+            CommitItem(c)
+            if isinstance(c, dict) and not isinstance(c, CommitItem)
+            else c
+            for c in raw
+        ]
 
     @author_commits.setter
     def author_commits(self, value: list[Any]) -> None:
-        self["author_commits"] = [CommitItem(c) if isinstance(c, dict) and not isinstance(c, CommitItem) else c for c in value]
+        self["author_commits"] = [
+            CommitItem(c)
+            if isinstance(c, dict) and not isinstance(c, CommitItem)
+            else c
+            for c in value
+        ]
 
     @property
     def files_changed(self) -> list[str]:
@@ -664,7 +693,9 @@ class ReviewItem(dict):
     def __getattr__(self, name: str) -> Any:
         if name in self:
             return self[name]
-        raise AttributeError(f"{type(self).__name__!r} object has no attribute {name!r}")
+        raise AttributeError(
+            f"{type(self).__name__!r} object has no attribute {name!r}"
+        )
 
     def __setattr__(self, name: str, value: Any) -> None:
         self[name] = value

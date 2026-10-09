@@ -411,11 +411,15 @@ class EcosystemCompatibilityTests(unittest.TestCase):
         ]
 
         with patch.object(client, "_rest_get", return_value=fake_commits):
-            commits = client.get_user_commits_for_date("org", "repo", "Volcann", date(2026, 9, 11))
+            commits = client.get_user_commits_for_date(
+                "org", "repo", "Volcann", date(2026, 9, 11)
+            )
 
         self.assertEqual(len(commits), 1)
         self.assertEqual(commits[0].sha, "111111111111")
-        self.assertEqual(commits[0].headline, "feat: implement permission check for admin endpoints")
+        self.assertEqual(
+            commits[0].headline, "feat: implement permission check for admin endpoints"
+        )
 
         # 2. test_get_user_prs_for_date
         fake_search = {
@@ -434,7 +438,9 @@ class EcosystemCompatibilityTests(unittest.TestCase):
         }
 
         with patch.object(client, "_rest_get", return_value=fake_search):
-            prs = client.get_user_prs_for_date("org", "repo", "Volcann", date(2026, 9, 11))
+            prs = client.get_user_prs_for_date(
+                "org", "repo", "Volcann", date(2026, 9, 11)
+            )
 
         self.assertEqual(len(prs), 1)
         self.assertEqual(prs[0].number, 348)
@@ -456,7 +462,9 @@ class EcosystemCompatibilityTests(unittest.TestCase):
         fake_pr_commits = [
             {
                 "sha": "fd3cfbc1234",
-                "commit": {"message": "Timesheet Attendance (HTM-228): Excluded soft-deleted users"},
+                "commit": {
+                    "message": "Timesheet Attendance (HTM-228): Excluded soft-deleted users"
+                },
                 "author": {"login": "Volcann"},
             }
         ]
@@ -505,7 +513,9 @@ class EcosystemCompatibilityTests(unittest.TestCase):
             return fake_search_reviewed
 
         with patch.object(client, "_rest_get", side_effect=mock_reviews_get):
-            reviews = client.get_user_reviewed_prs_for_date("org", "repo", "Volcann", date(2026, 9, 16))
+            reviews = client.get_user_reviewed_prs_for_date(
+                "org", "repo", "Volcann", date(2026, 9, 16)
+            )
 
         self.assertEqual(len(reviews), 1)
         self.assertEqual(reviews[0].pr_number, 359)
@@ -533,7 +543,9 @@ class EcosystemCompatibilityTests(unittest.TestCase):
             )
 
         self.assertEqual(len(comments), 1)
-        self.assertEqual(comments[0], "I have fully tested from FE no breaking changes.")
+        self.assertEqual(
+            comments[0], "I have fully tested from FE no breaking changes."
+        )
 
     def test_worked_task_collector_mutations(self):
         """Verify PullRequestItem, CommitItem, and ReviewItem support workedTask collector mutations."""

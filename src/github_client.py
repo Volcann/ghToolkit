@@ -57,7 +57,9 @@ class GitHubClient:
     ):
         self.token = token or os.getenv("GITHUB_TOKEN") or os.getenv("GH_TOKEN") or ""
         self.prefer_cli = prefer_cli
-        self.has_gh_cli = prefer_cli and (runner is not None or shutil.which("gh") is not None)
+        self.has_gh_cli = prefer_cli and (
+            runner is not None or shutil.which("gh") is not None
+        )
         self._runner = runner if runner is not None else GhRunner(timeout=timeout)
         self._timeout = timeout
         self._timezone = timezone
@@ -144,10 +146,13 @@ class GitHubClient:
         except Exception:
             return None
 
-    def _rest_get(self, endpoint: str, params: dict[str, Any] | None = None) -> Any | None:
+    def _rest_get(
+        self, endpoint: str, params: dict[str, Any] | None = None
+    ) -> Any | None:
         """Query GitHub REST API (offline resilient)."""
         import urllib.parse
         import urllib.request
+
         clean_ep = endpoint.lstrip("/")
         if clean_ep.startswith("http"):
             url = clean_ep
@@ -161,7 +166,9 @@ class GitHubClient:
         if self.token:
             req.add_header("Authorization", f"Bearer {self.token}")
         try:
-            with urllib.request.urlopen(req, timeout=float(self._timeout or 30)) as resp:
+            with urllib.request.urlopen(
+                req, timeout=float(self._timeout or 30)
+            ) as resp:
                 if resp.status == 200:
                     return json.loads(resp.read().decode("utf-8"))
         except Exception:
@@ -282,14 +289,14 @@ class GitHubClient:
                             continue
                         commit_data = item.get("commit", {})
                         msg = commit_data.get("message", "")
-                        if "Merge pull request #" in msg or msg.startswith("Merge branch "):
+                        if "Merge pull request #" in msg or msg.startswith(
+                            "Merge branch "
+                        ):
                             continue
                         c_auth = item.get("author") or {}
                         c_committer = commit_data.get("author", {})
                         auth_login = (
-                            c_auth.get("login")
-                            if isinstance(c_auth, dict)
-                            else ""
+                            c_auth.get("login") if isinstance(c_auth, dict) else ""
                         ) or c_committer.get("name", author)
                         results.append(
                             CommitItem(
@@ -500,7 +507,9 @@ class GitHubClient:
                                     "head_ref": (item.get("head") or {}).get("ref", "")
                                     if isinstance(item.get("head"), dict)
                                     else "",
-                                    "is_own": client.is_author_match(author, login=auth_login)
+                                    "is_own": client.is_author_match(
+                                        author, login=auth_login
+                                    )
                                     if auth_login
                                     else True,
                                     "commits": item.get("commits", []),
@@ -517,8 +526,7 @@ class GitHubClient:
             author=author, date=target_date, date_field=date_field, state=state
         )
         return [
-            PullRequestItem(p) if not isinstance(p, PullRequestItem) else p
-            for p in raw
+            PullRequestItem(p) if not isinstance(p, PullRequestItem) else p for p in raw
         ]
 
     def fetch_pr_metadata(self, *args: Any, **kwargs: Any) -> dict[str, Any] | None:
@@ -589,7 +597,9 @@ class GitHubClient:
             try:
                 owner_name = client._api.repository.owner if client._api else owner
                 repo_name = client._api.repository.name if client._api else repo
-                data = client._rest_get(f"repos/{owner_name}/{repo_name}/pulls/{pr_num}")
+                data = client._rest_get(
+                    f"repos/{owner_name}/{repo_name}/pulls/{pr_num}"
+                )
                 if isinstance(data, dict):
                     commits_data = client._rest_get(
                         f"repos/{owner_name}/{repo_name}/pulls/{pr_num}/commits"
@@ -813,7 +823,9 @@ class GitHubClient:
                                 if not isinstance(r, dict):
                                     continue
                                 r_user = (r.get("user") or {}).get("login", "")
-                                sub_at = r.get("submitted_at") or r.get("submittedAt", "")
+                                sub_at = r.get("submitted_at") or r.get(
+                                    "submittedAt", ""
+                                )
                                 if client.is_author_match(
                                     author, login=r_user
                                 ) and sub_at.startswith(iso_str):
@@ -1063,7 +1075,11 @@ class GitHubClient:
         body = kwargs.get("body", "")
         event = kwargs.get("event", "COMMENT")
         return client._reviews.create(
-            int(pr_num), str(commit_id), comments or [], body=str(body), event=str(event)
+            int(pr_num),
+            str(commit_id),
+            comments or [],
+            body=str(body),
+            event=str(event),
         )
 
     # -------------------------------------------------------------------------
@@ -1238,4 +1254,3 @@ def create_pull_request_review(
         return res if res else True
     except Exception:
         return False
-

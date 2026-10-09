@@ -114,10 +114,7 @@ class ReviewService:
             positive_number(c["start_line"], "comment.start_line")
             if c.get("start_side") not in {"LEFT", "RIGHT"}:
                 raise ValueError("Multiline comments require start_side")
-            if (
-                c["start_side"] == c["side"]
-                and c["start_line"] > c["line"]
-            ):
+            if c["start_side"] == c["side"] and c["start_line"] > c["line"]:
                 raise ValueError("start_line cannot exceed line on the same side")
         elif "start_side" in c:
             raise ValueError("start_side requires start_line")
