@@ -8,7 +8,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from ghtoolkit import DiffStorageError
-from ghtoolkit.diff_store import DiffStore
+from ghtoolkit.storage.diffs import DiffStore
 from tests.helpers import PATCH
 
 

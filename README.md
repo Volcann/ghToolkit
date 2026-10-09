@@ -42,36 +42,39 @@ ghToolkit/
 ├── LICENSE
 ├── Makefile
 ├── MANIFEST.in
+├── project.json
+├── projects.json
 ├── pyproject.toml
 ├── README.md
 ├── TEST_RESULTS.txt
 ├── WHY_IT_EXISTS.md
 ├── uv.lock
 ├── src/
-│   ├── __init__.py
-│   ├── api.py
-│   ├── audit.py
-│   ├── comments.py
-│   ├── commit/
-│   │   ├── __init__.py
-│   │   └── service.py
-│   ├── dates.py
-│   ├── diff_store.py
-│   ├── errors.py
-│   ├── git_local.py
-│   ├── github_client.py
-│   ├── identity.py
-│   ├── issues/
-│   │   ├── __init__.py
-│   │   └── service.py
-│   ├── models.py
-│   ├── pull_request/
-│   │   ├── __init__.py
-│   │   ├── reviews.py
-│   │   └── service.py
-│   ├── py.typed
-│   ├── runner.py
-│   └── validation.py
+│   └── ghtoolkit/
+│       ├── __init__.py
+│       ├── api.py
+│       ├── audit.py
+│       ├── comments.py
+│       ├── commit/
+│       │   ├── __init__.py
+│       │   └── service.py
+│       ├── dates.py
+│       ├── diff_store.py
+│       ├── errors.py
+│       ├── git_local.py
+│       ├── github_client.py
+│       ├── identity.py
+│       ├── issues/
+│       │   ├── __init__.py
+│       │   └── service.py
+│       ├── models.py
+│       ├── pull_request/
+│       │   ├── __init__.py
+│       │   ├── reviews.py
+│       │   └── service.py
+│       ├── py.typed
+│       ├── runner.py
+│       └── validation.py
 └── tests/
     ├── __init__.py
     ├── helpers.py
@@ -84,6 +87,7 @@ ghToolkit/
     ├── test_ecosystem_compatibility.py
     ├── test_git_local.py
     ├── test_identity.py
+    ├── test_issues.py
     ├── test_models.py
     ├── test_pull_requests.py
     ├── test_reviews.py
@@ -91,8 +95,7 @@ ghToolkit/
     └── test_unified_client.py
 ```
 
-`pyproject.toml` maps the import package `ghtoolkit` to `src/`. Install the project
-before importing it from another project.
+`pyproject.toml` uses the standard Python `src/` layout with automatic package discovery for `ghtoolkit`.
 
 ## Facade design
 

@@ -155,6 +155,6 @@ test_load_projects_file (test_unified_client.UnifiedClientTests.test_load_projec
 test_save_pr_diff (test_unified_client.UnifiedClientTests.test_save_pr_diff) ... ok
 
 ----------------------------------------------------------------------
-Ran 146 tests in 0.392s
+Ran 146 tests in 0.632s
 
 OK

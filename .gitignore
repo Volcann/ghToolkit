@@ -6,3 +6,7 @@ build/
 dist/
 .env
 .cache/
+
+# Local project configs — confidential, never commit
+project.json
+projects.json

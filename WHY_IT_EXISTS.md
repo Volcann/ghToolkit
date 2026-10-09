@@ -45,20 +45,20 @@ Each project attempted to solve overlapping problems—such as fetching PR diffs
                ▼                       ▼                        ▼
 ┌───────────────────────────────────────────────────────────────────────────┐
 │                       GitHubClient (Unified Facade)                       │
-│                         (src/github_client.py)                            │
+│                   (src/ghtoolkit/github_client.py)                        │
 └───────┬───────────────────┬───────────────────┬───────────────────┬───────┘
         │                   │                   │                   │
         ▼                   ▼                   ▼                   ▼
 ┌───────────────┐   ┌───────────────┐   ┌───────────────┐   ┌───────────────┐
 │  Git Local    │   │   Identity    │   │   Comments    │   │  Audit Engine │
 │ Acceleration  │   │  & Aliases    │   │  & Disk Cache │   │  & Progress   │
-│(src/git_local)│   │(src/identity) │   │(src/comments) │   │ (src/audit)   │
+│  (git_local)  │   │  (identity)   │   │  (comments)   │   │    (audit)    │
 └───────┬───────┘   └───────────────┘   └───────────────┘   └───────────────┘
         │
         ▼ (Local clone present? Fast path via `git -C`)
 ┌───────────────────────────────────────────────────────────────────────────┐
 │                         GhAPI & GhRunner (Adapter)                        │
-│                 (src/api.py, src/runner.py, src/diff_store.py)            │
+│            (src/ghtoolkit/api.py, runner.py, diff_store.py)               │
 └────────────────────────────────────────────────┬──────────────────────────┘
                                                  │
                                                  ▼
@@ -79,18 +79,18 @@ To eliminate breaking changes across consumers:
 - They simultaneously expose typed attribute access (`pr.number`, `pr.author_login`, `pr.commits`, `pr.is_own`, `commit.sha`, `commit.headline`, `review.comments`) for modern consumers.
 
 ### 4. Author Identity & Alias Resolution (`identity.py`)
-Centralized registry ([`AuthorRegistry`](file:///home/folium/Documents/ghToolkit/src/identity.py#L28)) managing contributor aliases, handles, and emails (e.g. `Volcann` ↔ `Mohsin Ali` ↔ `mohsinmuhammad823@gmail.com`). Supports custom alias registration at runtime.
+Centralized registry ([`AuthorRegistry`](file:///home/folium/Documents/ghToolkit/src/ghtoolkit/identity.py#L28)) managing contributor aliases, handles, and emails (e.g. `Volcann` ↔ `Mohsin Ali` ↔ `mohsinmuhammad823@gmail.com`). Supports custom alias registration at runtime.
 
 ### 5. Multi-Source Discussion Aggregation & Caching (`comments.py`)
 Unifies discussion comments across three GitHub sources:
 1. Issue / PR conversation comments (`/issues/{num}/comments`)
 2. Inline code review comments (`/pulls/{num}/comments`)
 3. Top-level review summaries (`/pulls/{num}/reviews`)
-Includes an atomic JSON file cache ([`CommentCache`](file:///home/folium/Documents/ghToolkit/src/comments.py#L11)) at `.cache/pr_comments.json` to prevent API rate limits during repeated runs.
+Includes an atomic JSON file cache ([`CommentCache`](file:///home/folium/Documents/ghToolkit/src/ghtoolkit/comments.py#L11)) at `.cache/pr_comments.json` to prevent API rate limits during repeated runs.
 
 ### 6. High-Throughput Auditing & Resumable Queues (`audit.py`)
 - **Foreign PR Mining**: High-throughput scanning of thousands of repository PRs using `ThreadPoolExecutor`, analyzing commits inside foreign PRs to detect native contributions while ignoring invalid/spam PRs.
-- **Checkpointing Queue**: [`ProgressQueue`](file:///home/folium/Documents/ghToolkit/src/audit.py#L15) provides an atomic, file-backed queue (`progress.txt`) for long-running audit jobs, enabling safe crash recovery and resumption.
+- **Checkpointing Queue**: [`ProgressQueue`](file:///home/folium/Documents/ghToolkit/src/ghtoolkit/audit.py#L15) provides an atomic, file-backed queue (`progress.txt`) for long-running audit jobs, enabling safe crash recovery and resumption.
 
 ---
 

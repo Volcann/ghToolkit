@@ -14,14 +14,14 @@ install:
 # Tests
 # ------------------------
 test:
-	$(PYTHON) -m unittest discover -s tests -v $(ARGS)
+	PYTHONPATH=src $(PYTHON) -m unittest discover -s tests -v $(ARGS)
 
 # ------------------------
 # Linting & Formatting
 # ------------------------
 lint lints:
 	@if command -v uv >/dev/null 2>&1; then \
-		uv run ruff check --fix . && uv run ruff format . ; \
+		uv run --no-sync ruff check --fix . && uv run --no-sync ruff format . ; \
 	elif command -v ruff >/dev/null 2>&1; then \
 		ruff check --fix . && ruff format . ; \
 	elif [ -f .venv/bin/ruff ]; then \
@@ -35,7 +35,7 @@ lint lints:
 
 format:
 	@if command -v uv >/dev/null 2>&1; then \
-		uv run ruff format . ; \
+		uv run --no-sync ruff format . ; \
 	elif command -v ruff >/dev/null 2>&1; then \
 		ruff format . ; \
 	elif [ -f .venv/bin/ruff ]; then \
@@ -48,7 +48,7 @@ format:
 
 lint-check:
 	@if command -v uv >/dev/null 2>&1; then \
-		uv run ruff check . && uv run ruff format --check . ; \
+		uv run --no-sync ruff check . && uv run --no-sync ruff format --check . ; \
 	elif command -v ruff >/dev/null 2>&1; then \
 		ruff check . && ruff format --check . ; \
 	elif [ -f .venv/bin/ruff ]; then \

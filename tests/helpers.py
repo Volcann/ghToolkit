@@ -4,14 +4,12 @@ from collections import deque
 from copy import deepcopy
 from typing import Any
 
-from ghtoolkit import GhRunner
-
 SHA = "a" * 40
 OTHER_SHA = "b" * 40
 PATCH = b"diff --git a/example.py b/example.py\n--- a/example.py\n+++ b/example.py\n@@ -1 +1 @@\n-old()\n+new()\n"
 
 
-class FakeRunner(GhRunner):
+class FakeRunner:
     def __init__(self, *, json_results=(), byte_results=(), text_results=()):
         super().__init__()
         self.json_results = deque(json_results)

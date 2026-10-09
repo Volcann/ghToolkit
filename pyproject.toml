@@ -9,13 +9,11 @@ description = "A GitHub CLI facade for commits, pull requests, reviews, and pres
 readme = "README.md"
 requires-python = ">=3.11"
 license = {file = "LICENSE"}
-dependencies = []
+dependencies = ["requests>=2.28.0"]
 
-[tool.setuptools]
-packages = ["ghtoolkit", "ghtoolkit.commit", "ghtoolkit.issues", "ghtoolkit.pr", "ghtoolkit.pull_request"]
-
-[tool.setuptools.package-dir]
-ghtoolkit = "src"
+[tool.setuptools.packages.find]
+where = ["src"]
 
 [tool.setuptools.package-data]
 ghtoolkit = ["py.typed"]
+

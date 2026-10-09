@@ -2,7 +2,7 @@ import unittest
 from datetime import date, datetime, timedelta, timezone
 from zoneinfo import ZoneInfoNotFoundError
 
-from ghtoolkit.dates import DateWindow, parse_date, parse_timestamp
+from ghtoolkit.core.dates import DateWindow, parse_date, parse_timestamp
 from ghtoolkit import GhResponseError
 
 
