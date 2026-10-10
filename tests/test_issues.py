@@ -3,6 +3,7 @@ import unittest
 
 from ghtoolkit.api import GhAPI, Repository
 from ghtoolkit.issues import IssueService
+
 from tests.helpers import FakeRunner
 
 
@@ -13,7 +14,7 @@ class IssueServiceTests(unittest.TestCase):
         self.repo = Repository.parse("acme/widget")
 
     def test_module_import(self):
-        from ghtoolkit import IssueService as ExportedIssueService
+        from ghtoolkit import IssueService as ExportedIssueService  # noqa: PLC0415
 
         self.assertIs(IssueService, ExportedIssueService)
 
@@ -54,7 +55,7 @@ class IssueServiceTests(unittest.TestCase):
             result, "https://github.com/acme/widget/pull/10#issuecomment-123"
         )
         self.assertEqual(len(runner.calls), 1)
-        kind, args, kwargs = runner.calls[0]
+        kind, args, kwargs = runner.calls[0]  # noqa: RUF059
         self.assertEqual(kind, "text")
         self.assertEqual(args[0:3], ("pr", "comment", "10"))
         self.assertIn("--body-file", args)

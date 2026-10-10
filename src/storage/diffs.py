@@ -35,9 +35,9 @@ class DiffStore:
         self, repository: str, kind: str, identifier: str, raw: bytes
     ) -> DiffResult:
         if kind not in {"commit", "pr"}:
-            raise ValueError("kind must be commit or pr")
+            raise ValueError("kind must be commit or pr")  # noqa: TRY003
         if not isinstance(raw, bytes):
-            raise TypeError("raw diff must be bytes")
+            raise TypeError("raw diff must be bytes")  # noqa: TRY003
         repo_key = re.sub(r"[^A-Za-z0-9_.-]", "_", repository)
         repo_key = (
             f"{repo_key[:100]}-{hashlib.sha256(repository.encode()).hexdigest()[:12]}"
@@ -61,7 +61,7 @@ class DiffStore:
         except OSError as exc:
             if directory is not None:
                 shutil.rmtree(directory, ignore_errors=True)
-            raise DiffStorageError(
+            raise DiffStorageError(  # noqa: TRY003
                 f"Could not preserve diff under {self.root}"
             ) from exc
         return DiffResult(diff_path, markdown_path, text, markdown)

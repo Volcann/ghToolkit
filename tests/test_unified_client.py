@@ -4,6 +4,7 @@ import unittest
 from pathlib import Path
 
 from ghtoolkit import GitHubClient
+
 from tests.helpers import FakeRunner
 
 

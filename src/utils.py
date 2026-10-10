@@ -12,8 +12,8 @@ def run_gh(
     args: list[str], cwd: str | Path | None = None
 ) -> subprocess.CompletedProcess[str] | None:
     try:
-        return subprocess.run(
-            ["gh", *args],
+        return subprocess.run(  # noqa: S603
+            ["gh", *args],  # noqa: S607
             capture_output=True,
             text=True,
             check=True,
@@ -90,8 +90,8 @@ def create_pr_review(
             "comments": comments,
         }
     )
-    result = subprocess.run(
-        [
+    result = subprocess.run(  # noqa: S603, PLW1510
+        [  # noqa: S607
             "gh",
             "api",
             f"/repos/{owner}/{name}/pulls/{pr_number}/reviews",
@@ -111,14 +111,14 @@ def create_pr_review(
 
 def run_git(args: list[str], cwd: str | Path) -> str:
     try:
-        result = subprocess.run(
-            ["git", *args],
+        result = subprocess.run(  # noqa: S603
+            ["git", *args],  # noqa: S607
             capture_output=True,
             text=True,
             check=True,
             cwd=cwd,
         )
-        return result.stdout
+        return result.stdout  # noqa: TRY300
     except (subprocess.CalledProcessError, FileNotFoundError):
         return ""
 
@@ -139,7 +139,7 @@ def clean_commit_message(msg: str) -> str:
 def is_merge_commit(msg: str) -> bool:
     lower = msg.lower()
     return (
-        lower.startswith("merge pull request")
+        lower.startswith("merge pull request")  # noqa: PIE810
         or lower.startswith("merge branch")
         or "merge remote-tracking branch" in lower
     )

@@ -3,6 +3,7 @@ import unittest
 from pathlib import Path
 
 from ghtoolkit import ProgressQueue, get_pr_state, scan_foreign_pr
+
 from tests.helpers import FakeRunner
 
 

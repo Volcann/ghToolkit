@@ -4,6 +4,7 @@ from urllib.parse import parse_qs, urlsplit
 
 from ghtoolkit import GhResponseError
 from ghtoolkit.api import GhAPI, Repository
+
 from tests.helpers import FakeRunner
 
 

@@ -146,7 +146,7 @@ class CommitItem(dict):
     def __getattr__(self, name: str) -> Any:
         if name in self:
             return self[name]
-        raise AttributeError(
+        raise AttributeError(  # noqa: TRY003
             f"{type(self).__name__!r} object has no attribute {name!r}"
         )
 
@@ -428,7 +428,7 @@ class PullRequestItem(dict):
     def __getattr__(self, name: str) -> Any:
         if name in self:
             return self[name]
-        raise AttributeError(
+        raise AttributeError(  # noqa: TRY003
             f"{type(self).__name__!r} object has no attribute {name!r}"
         )
 
@@ -696,7 +696,7 @@ class ReviewItem(dict):
     def __getattr__(self, name: str) -> Any:
         if name in self:
             return self[name]
-        raise AttributeError(
+        raise AttributeError(  # noqa: TRY003
             f"{type(self).__name__!r} object has no attribute {name!r}"
         )
 

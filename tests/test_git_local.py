@@ -1,5 +1,5 @@
-from datetime import date
 import unittest
+from datetime import date
 from unittest.mock import patch
 
 from ghtoolkit import run_git_command

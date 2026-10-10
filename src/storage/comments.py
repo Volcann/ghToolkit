@@ -18,7 +18,7 @@ class CommentCache:
         if not self.cache_path.exists():
             return {}
         try:
-            with open(self.cache_path, "r", encoding="utf-8") as f:
+            with open(self.cache_path, encoding="utf-8") as f:
                 return json.load(f)
         except (json.JSONDecodeError, OSError):
             return {}
@@ -75,8 +75,8 @@ def fetch_pr_user_comments(
                 c_auth = item.get("author", "")
                 c_date = item.get("created_at", "")
                 c_body = item.get("body", "").strip()
-                if is_author_match(author, login=c_auth):
-                    if not target_date or c_date.startswith(target_date):
+                if is_author_match(author, login=c_auth):  # noqa: SIM102
+                    if not target_date or c_date.startswith(target_date):  # noqa: SIM102
                         if c_body and c_body not in comments_found:
                             comments_found.append(c_body)
             if comments_found:
@@ -112,7 +112,7 @@ def fetch_pr_user_comments(
                 raw_data = api_or_client._run_gh_command(["api", endpoint])
             elif hasattr(api_or_client, "_rest_get"):
                 raw_data = api_or_client._rest_get(endpoint)
-        except Exception:
+        except Exception:  # noqa: BLE001
             raw_data = None
 
         if isinstance(raw_data, list):
@@ -139,14 +139,14 @@ def fetch_pr_user_comments(
                     }
                 )
 
-                if is_author_match(author, login=user_login):
-                    if not target_date or c_date.startswith(target_date):
+                if is_author_match(author, login=user_login):  # noqa: SIM102
+                    if not target_date or c_date.startswith(target_date):  # noqa: SIM102
                         if c_body and c_body not in comments_found:
                             comments_found.append(c_body)
 
     if not comments_found and new_cache_entries:
         for item in new_cache_entries:
-            if is_author_match(author, login=item["author"]):
+            if is_author_match(author, login=item["author"]):  # noqa: SIM102
                 if item["body"] not in comments_found:
                     comments_found.append(item["body"])
 

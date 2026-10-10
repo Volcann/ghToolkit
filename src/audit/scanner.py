@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import os
+from collections.abc import Sequence
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
-from typing import Sequence
 
 from ..core.identity import AuthorRegistry, is_author_match
 from ..core.runner import GhRunner
@@ -19,7 +19,7 @@ class ProgressQueue:
         if not self.filepath.exists():
             return []
         try:
-            with open(self.filepath, "r", encoding="utf-8") as f:
+            with open(self.filepath, encoding="utf-8") as f:
                 return [line.strip() for line in f if line.strip()]
         except OSError:
             return []
@@ -29,8 +29,7 @@ class ProgressQueue:
             self.filepath.parent.mkdir(parents=True, exist_ok=True)
             tmp = self.filepath.with_suffix(".tmp")
             with open(tmp, "w", encoding="utf-8") as f:
-                for item in items:
-                    f.write(f"{item}\n")
+                f.writelines(f"{item}\n" for item in items)
             os.replace(tmp, self.filepath)
         except OSError:
             pass
@@ -89,7 +88,7 @@ def get_pr_state(runner: GhRunner, repo_cli: str, pr_number: int) -> str | None:
         )
         if isinstance(data, dict):
             return data.get("state")
-    except Exception:
+    except Exception:  # noqa: BLE001, S110
         pass
     return None
 
@@ -116,7 +115,7 @@ def scan_foreign_pr(
             "--json",
             "commits,labels",
         )
-    except Exception:
+    except Exception:  # noqa: BLE001
         return pr_number, False, []
 
     if not isinstance(data, dict):
@@ -185,7 +184,7 @@ def scan_contributor_contributions(
             "--json",
             "number,author",
         )
-    except Exception:
+    except Exception:  # noqa: BLE001
         all_prs_data = []
 
     if not isinstance(all_prs_data, list):

@@ -9,12 +9,12 @@ from .service import (
 )
 
 __all__ = [
+    "DATE_FIELDS",
+    "DETAIL_FIELDS",
+    "SUMMARY_FIELDS",
+    "DateField",
+    "InlineReviewComment",
     "PullRequestService",
     "ReviewService",
-    "DateField",
-    "SUMMARY_FIELDS",
-    "DETAIL_FIELDS",
-    "DATE_FIELDS",
     "summarize_rest_pr",
-    "InlineReviewComment",
 ]

@@ -1,10 +1,11 @@
-from datetime import date
 import tempfile
 import unittest
+from datetime import date
 from pathlib import Path
 from unittest.mock import patch
 
 from ghtoolkit import GitHubClient, ProgressQueue
+
 from tests.helpers import FakeRunner, gql_page, metadata
 
 
@@ -132,7 +133,11 @@ class EcosystemCompatibilityTests(unittest.TestCase):
             ) as mock_commit_branch,
             patch("ghtoolkit.github_client.fetch_pr_user_comments") as mock_comments,
         ):
-            from ghtoolkit import CommitItem, PullRequestItem, ReviewItem
+            from ghtoolkit import (  # noqa: PLC0415
+                CommitItem,
+                PullRequestItem,
+                ReviewItem,
+            )
 
             mock_commits.return_value = [
                 CommitItem(
@@ -387,7 +392,7 @@ class EcosystemCompatibilityTests(unittest.TestCase):
     def test_worked_task_rest_client_mock_tests(self):
         """Verify GitHubClient executes all 5 workedTask REST mock tests identically."""
         # 1. test_get_user_commits_ignores_merge_commits
-        client = GitHubClient(token="mock_token", prefer_cli=False)
+        client = GitHubClient(token="mock_token", prefer_cli=False)  # noqa: S106
 
         fake_commits = [
             {
@@ -549,7 +554,7 @@ class EcosystemCompatibilityTests(unittest.TestCase):
 
     def test_worked_task_collector_mutations(self):
         """Verify PullRequestItem, CommitItem, and ReviewItem support workedTask collector mutations."""
-        from ghtoolkit import (
+        from ghtoolkit import (  # noqa: PLC0415
             CommitInfo,
             CommitItem,
             PullRequestInfo,
@@ -605,7 +610,7 @@ class EcosystemCompatibilityTests(unittest.TestCase):
 
     def test_lazy_reviewer_standalone_functions_and_inline_reviews(self):
         """Verify lazy-reviewer can import and call standalone top-level functions directly."""
-        from ghtoolkit import (
+        from ghtoolkit import (  # noqa: PLC0415
             checkout_pr_branch,
             create_pull_request_review,
             fetch_pr_diff,

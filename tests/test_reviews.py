@@ -2,8 +2,9 @@ import json
 import unittest
 from pathlib import Path
 
-from ghtoolkit import GitHubClient, GhCommandError
-from tests.helpers import FakeRunner, SHA, rest_pr, review
+from ghtoolkit import GhCommandError, GitHubClient
+
+from tests.helpers import SHA, FakeRunner, rest_pr, review
 
 
 class ReviewTests(unittest.TestCase):

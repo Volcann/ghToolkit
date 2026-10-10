@@ -9,6 +9,7 @@ from unittest.mock import patch
 
 from ghtoolkit import DiffStorageError
 from ghtoolkit.storage.diffs import DiffStore
+
 from tests.helpers import PATCH
 
 
@@ -73,7 +74,7 @@ class DiffTests(unittest.TestCase):
         self.assertTrue(all(item.diff_path.read_bytes() == PATCH for item in results))
 
     def test_storage_failure_is_reported_and_partial_files_removed(self):
-        with patch.object(DiffStore, "_write", side_effect=OSError("disk full")):
+        with patch.object(DiffStore, "_write", side_effect=OSError("disk full")):  # noqa: SIM117
             with self.assertRaises(DiffStorageError):
                 self.store.save("a/b", "pr", "7", PATCH)
         self.assertEqual(list(self.store.root.rglob("changes.*")), [])
@@ -91,8 +92,8 @@ class DiffTests(unittest.TestCase):
         workspace = Path(self.directory.name) / "workspace"
         workspace.mkdir()
         (workspace / "example.py").write_text("old()\n")
-        result = subprocess.run(
-            ["git", "apply", "--check", str(artifact.diff_path)],
+        result = subprocess.run(  # noqa: S603, PLW1510
+            ["git", "apply", "--check", str(artifact.diff_path)],  # noqa: S607
             cwd=workspace,
             capture_output=True,
         )

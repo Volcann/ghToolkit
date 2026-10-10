@@ -1,9 +1,9 @@
 import unittest
-from datetime import date, datetime, timedelta, timezone
+from datetime import UTC, date, datetime, timedelta
 from zoneinfo import ZoneInfoNotFoundError
 
-from ghtoolkit.core.dates import DateWindow, parse_date, parse_timestamp
 from ghtoolkit import GhResponseError
+from ghtoolkit.core.dates import DateWindow, parse_date, parse_timestamp
 
 
 class DateTests(unittest.TestCase):
@@ -74,5 +74,5 @@ class DateTests(unittest.TestCase):
     def test_offset_timestamps_are_normalized(self):
         self.assertEqual(
             parse_timestamp("2026-10-03T05:00:00+05:00"),
-            datetime(2026, 10, 3, tzinfo=timezone.utc),
+            datetime(2026, 10, 3, tzinfo=UTC),
         )

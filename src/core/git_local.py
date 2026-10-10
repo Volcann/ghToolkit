@@ -2,12 +2,12 @@ from __future__ import annotations
 
 import re
 import subprocess
-from datetime import date, datetime, timedelta, timezone
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
-from .identity import AuthorRegistry, is_author_match
 from ..models import CommitItem, PullRequestItem, ReviewItem
+from .identity import AuthorRegistry, is_author_match
 
 
 def run_git_command(
@@ -25,14 +25,14 @@ def run_git_command(
 
     cmd = ["git", "-C", str(dir_path), *args]
     try:
-        res = subprocess.run(
+        res = subprocess.run(  # noqa: S603
             cmd,
             capture_output=True,
             text=True,
             check=True,
             timeout=timeout,
         )
-        return res.stdout
+        return res.stdout  # noqa: TRY300
     except (
         subprocess.CalledProcessError,
         subprocess.TimeoutExpired,
@@ -79,7 +79,7 @@ def get_local_commits_for_date(
     results: list[CommitItem] = []
 
     for record in git_out.strip().split("\x1e"):
-        record = record.strip()
+        record = record.strip()  # noqa: PLW2901
         if not record:
             continue
         parts = record.split("\x1f")
@@ -96,10 +96,10 @@ def get_local_commits_for_date(
                 commit_dt = datetime.fromisoformat(dt_clean)
                 if (
                     commit_dt.date() != target_date
-                    and commit_dt.astimezone(timezone.utc).date() != target_date
+                    and commit_dt.astimezone(UTC).date() != target_date
                 ):
                     continue
-            except Exception:
+            except Exception:  # noqa: BLE001
                 if not dt_clean.startswith(iso_date):
                     continue
 
@@ -283,7 +283,7 @@ def get_local_pr_details(
                 continue
             c_parts = c_line.split("\x1f")
             if len(c_parts) >= 6:
-                ch, cs, cb, can, cae, cdt = c_parts[:6]
+                ch, cs, cb, can, cae, cdt = c_parts[:6]  # noqa: RUF059
                 c_files_out = run_git_command(
                     ["diff-tree", "--no-commit-id", "--name-only", "-r", ch],
                     cwd=local_path,
@@ -449,31 +449,22 @@ def get_local_reviewed_prs_for_date(
     local_reviews: list[ReviewItem] = []
 
     for record in merge_out.strip().split("\x1e"):
-        record = record.strip()
+        record = record.strip()  # noqa: PLW2901
         if not record:
             continue
         parts = record.split("\x1f")
         if len(parts) >= 6:
-            h, s, b, an, ae, dt = parts[:6]
+            h, s, b, an, ae, dt = parts[:6]  # noqa: RUF059
             match = re.search(r"Merge pull request #(\d+) from (.+)", s)
             if match:
                 pr_num = int(match.group(1))
                 clean_t = b.strip().splitlines()[0] if b.strip() else s
 
-                if matcher(author, name=an, email=ae):
-                    if not any(r.pr_number == pr_num for r in local_reviews):
-                        local_reviews.append(
-                            ReviewItem(
-                                {
-                                    "pr_number": pr_num,
-                                    "pr_title": clean_t,
-                                    "reviewer": author,
-                                    "state": "APPROVED",
-                                    "submitted_at": dt,
-                                }
-                            )
-                        )
-                elif f"Reviewed-by: {author}" in b or f"Approved-by: {author}" in b:
+                if (
+                    matcher(author, name=an, email=ae)
+                    or f"Reviewed-by: {author}" in b
+                    or f"Approved-by: {author}" in b
+                ):  # noqa: SIM102
                     if not any(r.pr_number == pr_num for r in local_reviews):
                         local_reviews.append(
                             ReviewItem(

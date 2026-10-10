@@ -31,9 +31,9 @@ class GhRunner:
             or not math.isfinite(timeout)
             or timeout <= 0
         ):
-            raise ValueError("timeout must be a positive finite number or None")
+            raise ValueError("timeout must be a positive finite number or None")  # noqa: TRY003
         if not isinstance(executable, str) or not executable or "\x00" in executable:
-            raise ValueError("executable must be a nonempty path or command name")
+            raise ValueError("executable must be a nonempty path or command name")  # noqa: TRY003
         self.timeout = timeout
         self.executable = executable
 
@@ -48,18 +48,18 @@ class GhRunner:
         cwd: str | Path | None = None,
     ) -> bytes:
         if any(not isinstance(arg, str) for arg in args):
-            raise TypeError("each command argument must be a string")
+            raise TypeError("each command argument must be a string")  # noqa: TRY003
         if any("\x00" in arg for arg in args):
-            raise ValueError("command arguments cannot contain NUL characters")
+            raise ValueError("command arguments cannot contain NUL characters")  # noqa: TRY003
         if input_data is not None and not isinstance(input_data, bytes):
-            raise TypeError("input_data must be bytes or None")
+            raise TypeError("input_data must be bytes or None")  # noqa: TRY003
         if cwd is not None:
             try:
                 cwd = Path(cwd).expanduser().resolve()
                 if not cwd.is_dir():
-                    raise GhExecutionError(f"Working directory does not exist: {cwd}")
+                    raise GhExecutionError(f"Working directory does not exist: {cwd}")  # noqa: TRY003
             except OSError as exc:
-                raise GhExecutionError(
+                raise GhExecutionError(  # noqa: TRY003
                     "Could not access the working directory"
                 ) from exc
 
@@ -79,7 +79,7 @@ class GhRunner:
         )
         command = [self.executable, *(args or ("version",))]
         try:
-            result = subprocess.run(
+            result = subprocess.run(  # noqa: S603
                 command,
                 input=input_data,
                 stdin=subprocess.DEVNULL if input_data is None else None,
@@ -90,7 +90,7 @@ class GhRunner:
                 env=env,
             )
         except FileNotFoundError as exc:
-            raise GhNotInstalledError(
+            raise GhNotInstalledError(  # noqa: TRY003
                 f"Could not start {self.executable!r}; check its installation and PATH"
             ) from exc
         except subprocess.TimeoutExpired as exc:
@@ -102,7 +102,7 @@ class GhRunner:
                 exc.returncode, _diagnostic(exc.stderr), _diagnostic(exc.stdout)
             ) from exc
         except OSError as exc:
-            raise GhExecutionError(f"Operating-system error running gh: {exc}") from exc
+            raise GhExecutionError(f"Operating-system error running gh: {exc}") from exc  # noqa: TRY003
         return result.stdout
 
     def run(
@@ -112,7 +112,7 @@ class GhRunner:
         cwd: str | Path | None = None,
     ) -> str:
         if input_text is not None and not isinstance(input_text, str):
-            raise TypeError("input_text must be a string or None")
+            raise TypeError("input_text must be a string or None")  # noqa: TRY003
         raw = self.run_bytes(
             *args,
             input_data=input_text.encode("utf-8") if input_text is not None else None,
@@ -121,7 +121,7 @@ class GhRunner:
         try:
             return raw.decode("utf-8")
         except UnicodeDecodeError as exc:
-            raise GhResponseError("gh output is not valid UTF-8") from exc
+            raise GhResponseError("gh output is not valid UTF-8") from exc  # noqa: TRY003
 
     def run_json(
         self,
@@ -133,7 +133,7 @@ class GhRunner:
         try:
             return json.loads(text)
         except json.JSONDecodeError as exc:
-            raise GhResponseError("gh returned invalid JSON") from exc
+            raise GhResponseError("gh returned invalid JSON") from exc  # noqa: TRY003
 
 
 def run_gh(*args: str, timeout: float | None = 30.0) -> str:

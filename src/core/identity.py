@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Iterable, Mapping
+from collections.abc import Iterable, Mapping
 
 # Default alias groups for known team members
 DEFAULT_ALIASES: dict[str, set[str]] = {
@@ -76,9 +76,7 @@ class AuthorRegistry:
             if not item:
                 continue
             if (
-                item == name_lower
-                or item == email_lower
-                or item == login_lower
+                item in (name_lower, email_lower, login_lower)
                 or (name_lower and item in name_lower)
                 or (email_lower and item in email_lower)
                 or (login_lower and item in login_lower)

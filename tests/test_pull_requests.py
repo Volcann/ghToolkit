@@ -2,12 +2,13 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from ghtoolkit import GitHubClient, GhResponseError
+from ghtoolkit import GhResponseError, GitHubClient
+
 from tests.helpers import (
-    FakeRunner,
+    OTHER_SHA,
     PATCH,
     SHA,
-    OTHER_SHA,
+    FakeRunner,
     gql_commit,
     gql_page,
     metadata,

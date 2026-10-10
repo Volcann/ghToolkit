@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Sequence
 from pathlib import PurePosixPath
-from typing import Any, Literal, NotRequired, Sequence, TypedDict
+from typing import Any, Literal, NotRequired, TypedDict
 
 from ..core.api import GhAPI
 from ..core.dates import DateInput, DateWindow, parse_timestamp
@@ -71,14 +72,14 @@ class ReviewService:
         if not isinstance(commit_id, str) or not re.fullmatch(
             r"[0-9a-fA-F]{40}", commit_id
         ):
-            raise ValueError("commit_id must be a full 40-character commit SHA")
+            raise ValueError("commit_id must be a full 40-character commit SHA")  # noqa: TRY003
         if not isinstance(body, str):
-            raise TypeError("body must be a string")
+            raise TypeError("body must be a string")  # noqa: TRY003
         if event not in {"COMMENT", "APPROVE", "REQUEST_CHANGES"}:
-            raise ValueError("event must be COMMENT, APPROVE, or REQUEST_CHANGES")
+            raise ValueError("event must be COMMENT, APPROVE, or REQUEST_CHANGES")  # noqa: TRY003
         validated = [self._validate_comment(comment) for comment in comments]
         if not validated and not body.strip():
-            raise ValueError("A review must contain comments or a nonempty body")
+            raise ValueError("A review must contain comments or a nonempty body")  # noqa: TRY003
         payload: dict[str, Any] = {
             "commit_id": commit_id,
             "event": event,
@@ -91,31 +92,31 @@ class ReviewService:
     @staticmethod
     def _validate_comment(comment: InlineReviewComment) -> dict[str, Any]:
         if not isinstance(comment, dict):
-            raise TypeError("Each inline comment must be a dictionary")
+            raise TypeError("Each inline comment must be a dictionary")  # noqa: TRY003
         c = dict(comment)
         if "side" not in c and "path" in c and "line" in c and "body" in c:
             c["side"] = "RIGHT"
         required = {"path", "line", "side", "body"}
         allowed = required | {"start_line", "start_side"}
         if not required <= c.keys() or not c.keys() <= allowed:
-            raise ValueError("Inline comments require path, line, side, and body")
+            raise ValueError("Inline comments require path, line, side, and body")  # noqa: TRY003
         path = nonempty(c["path"], "comment.path")
         if (
             PurePosixPath(path).is_absolute()
             or ".." in PurePosixPath(path).parts
             or "\\" in path
         ):
-            raise ValueError("comment.path must be a repository-relative POSIX path")
+            raise ValueError("comment.path must be a repository-relative POSIX path")  # noqa: TRY003
         positive_number(c["line"], "comment.line")
         nonempty(c["body"], "comment.body")
         if c["side"] not in {"LEFT", "RIGHT"}:
-            raise ValueError("comment.side must be LEFT or RIGHT")
+            raise ValueError("comment.side must be LEFT or RIGHT")  # noqa: TRY003
         if "start_line" in c:
             positive_number(c["start_line"], "comment.start_line")
             if c.get("start_side") not in {"LEFT", "RIGHT"}:
-                raise ValueError("Multiline comments require start_side")
+                raise ValueError("Multiline comments require start_side")  # noqa: TRY003
             if c["start_side"] == c["side"] and c["start_line"] > c["line"]:
-                raise ValueError("start_line cannot exceed line on the same side")
+                raise ValueError("start_line cannot exceed line on the same side")  # noqa: TRY003
         elif "start_side" in c:
-            raise ValueError("start_side requires start_line")
+            raise ValueError("start_side requires start_line")  # noqa: TRY003
         return c

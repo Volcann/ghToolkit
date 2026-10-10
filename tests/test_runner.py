@@ -63,7 +63,7 @@ class RunnerTests(unittest.TestCase):
         timeout = subprocess.TimeoutExpired(
             "gh", 30.0, output=b"partial", stderr=b"details"
         )
-        with patch("ghtoolkit.runner.subprocess.run", side_effect=timeout):
+        with patch("ghtoolkit.runner.subprocess.run", side_effect=timeout):  # noqa: SIM117
             with self.assertRaises(GhTimeoutError) as raised:
                 GhRunner().run()
         self.assertEqual(raised.exception.stdout, "partial")
@@ -87,7 +87,7 @@ class RunnerTests(unittest.TestCase):
             self.assertIsInstance(raised.exception.__cause__, PermissionError)
 
     def test_missing_working_directory_is_not_not_installed(self):
-        with tempfile.TemporaryDirectory() as directory:
+        with tempfile.TemporaryDirectory() as directory:  # noqa: SIM117
             with self.assertRaises(GhExecutionError):
                 GhRunner(executable=sys.executable).run(
                     "-V", cwd=Path(directory) / "missing"

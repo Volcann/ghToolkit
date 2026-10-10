@@ -3,9 +3,10 @@ from __future__ import annotations
 import json
 import os
 import shutil
+from collections.abc import Sequence
 from datetime import date
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any
 
 from ..audit import (
     scan_contributor_contributions,
@@ -25,8 +26,10 @@ from ..core.git_local import (
 )
 from ..core.identity import (
     AuthorRegistry,
-    is_author_match as is_author_match,
     register_author_alias,
+)
+from ..core.identity import (
+    is_author_match as is_author_match,  # noqa: PLC0414
 )
 from ..core.runner import GhRunner
 from ..core.validation import nonempty
@@ -124,7 +127,7 @@ class GitHubClient:
             )
         if self._api is not None:
             return self
-        raise ValueError(
+        raise ValueError(  # noqa: TRY003
             "Repository is required. Pass 'owner/repo' to GitHubClient or to method."
         )
 
@@ -147,15 +150,15 @@ class GitHubClient:
             return None
         try:
             return self._runner.run_json(*args)
-        except Exception:
+        except Exception:  # noqa: BLE001
             return None
 
     def _rest_get(
         self, endpoint: str, params: dict[str, Any] | None = None
     ) -> Any | None:
         """Query GitHub REST API (offline resilient)."""
-        import urllib.parse
-        import urllib.request
+        import urllib.parse  # noqa: PLC0415
+        import urllib.request  # noqa: PLC0415
 
         clean_ep = endpoint.lstrip("/")
         if clean_ep.startswith("http"):
@@ -164,18 +167,18 @@ class GitHubClient:
             url = f"https://api.github.com/{clean_ep}"
         if params:
             url += f"?{urllib.parse.urlencode(params)}"
-        req = urllib.request.Request(url)
+        req = urllib.request.Request(url)  # noqa: S310
         req.add_header("Accept", "application/vnd.github.v3+json")
         req.add_header("User-Agent", "ghtoolkit")
         if self.token:
             req.add_header("Authorization", f"Bearer {self.token}")
         try:
-            with urllib.request.urlopen(
+            with urllib.request.urlopen(  # noqa: S310
                 req, timeout=float(self._timeout or 30)
             ) as resp:
                 if resp.status == 200:
                     return json.loads(resp.read().decode("utf-8"))
-        except Exception:
+        except Exception:  # noqa: BLE001, S110
             pass
         return None
 
@@ -316,7 +319,7 @@ class GitHubClient:
                             )
                         )
                     return results
-            except Exception:
+            except Exception:  # noqa: BLE001, S110
                 pass
 
         # 3. Fall back to standard get_commits
@@ -354,7 +357,7 @@ class GitHubClient:
         client = self._ensure_repo()
         try:
             return [summarize_rest_pr(item) for item in client._commits.pulls(ref)]
-        except Exception:
+        except Exception:  # noqa: BLE001
             return []
 
     def get_commit_pull_requests(
@@ -383,7 +386,7 @@ class GitHubClient:
 
         try:
             return client.get_pulls_for_commit(commit_sha)
-        except Exception:
+        except Exception:  # noqa: BLE001
             return []
 
     def get_commit_branch(
@@ -521,7 +524,7 @@ class GitHubClient:
                             )
                         )
                     return prs
-            except Exception:
+            except Exception:  # noqa: BLE001, S110
                 pass
 
         date_field = kwargs.get("date_field", "created")
@@ -651,7 +654,7 @@ class GitHubClient:
                             "repo_name": repo_name,
                         }
                     )
-            except Exception:
+            except Exception:  # noqa: BLE001, S110
                 pass
 
         details = client.fetch_pr_metadata(pr_num)
@@ -742,7 +745,7 @@ class GitHubClient:
                 "number,author",
             )
             return records if isinstance(records, list) else []
-        except Exception:
+        except Exception:  # noqa: BLE001
             return []
 
     # -------------------------------------------------------------------------
@@ -759,7 +762,7 @@ class GitHubClient:
         client = self._ensure_repo()
         resolved = client._author(author)
         if resolved is None:
-            raise ValueError("author is required")
+            raise ValueError("author is required")  # noqa: TRY003
         reviews = client._reviews.for_user_date(resolved, date, pr_numbers=pr_numbers)
         return [ReviewItem(r) for r in reviews]
 
@@ -850,7 +853,7 @@ class GitHubClient:
                         )
                     if results:
                         return results
-            except Exception:
+            except Exception:  # noqa: BLE001, S110
                 pass
 
         # CLI Search Fallback: reviewed-by:<author> updated:<date>
@@ -904,7 +907,7 @@ class GitHubClient:
                     )
                 if results:
                     return results
-        except Exception:
+        except Exception:  # noqa: BLE001, S110
             pass
 
         return client.get_user_reviews_for_date(author, target_date)
@@ -1025,7 +1028,7 @@ class GitHubClient:
 
         path = local_path if local_path is not None else client._local_repo_path
         if path is None:
-            raise ValueError("local_repo_path is required for checkout")
+            raise ValueError("local_repo_path is required for checkout")  # noqa: TRY003
         return client._pulls.checkout(int(pr_num), path)
 
     def post_pr_comment(
@@ -1049,7 +1052,7 @@ class GitHubClient:
 
         body = str(body_arg)
         if Path(body).is_file():
-            try:
+            try:  # noqa: SIM105
                 body = Path(body).read_text(encoding="utf-8")
             except OSError:
                 pass
@@ -1166,7 +1169,7 @@ class GitHubClient:
             else:
                 return []
         try:
-            with open(path, "r", encoding="utf-8") as f:
+            with open(path, encoding="utf-8") as f:
                 data = json.load(f)
             if isinstance(data, list):
                 return [
@@ -1184,7 +1187,7 @@ class GitHubClient:
                     for item in data["projects"]
                     if isinstance(item, dict)
                 ]
-        except Exception:
+        except Exception:  # noqa: BLE001, S110
             pass
         return []
 
@@ -1220,7 +1223,7 @@ def checkout_pr_branch(
             repo_path, pr_number, local_repo_path=local_repo_path
         )
         return bool(res)
-    except Exception:
+    except Exception:  # noqa: BLE001
         return False
 
 
@@ -1231,7 +1234,7 @@ def post_pr_comment(
     try:
         res = GitHubClient().post_pr_comment(repo_path, pr_number, comment_file_path)
         return bool(res)
-    except Exception:
+    except Exception:  # noqa: BLE001
         return False
 
 
@@ -1255,6 +1258,6 @@ def create_pull_request_review(
             body=body,
             event=event,
         )
-        return res if res else True
-    except Exception:
+        return res or True  # noqa: TRY300
+    except Exception:  # noqa: BLE001
         return False

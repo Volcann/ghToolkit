@@ -8,6 +8,18 @@ from .audit import (
     scan_contributor_contributions,
     scan_foreign_pr,
 )
+from .client import (
+    GitHubClient,
+    checkout_pr_branch,
+    create_pull_request_review,
+    fetch_pr_diff,
+    fetch_pr_metadata,
+    load_projects,
+    post_pr_comment,
+)
+
+# Backward-compatibility submodule mapping for legacy direct imports
+from .client import client as _github_client_module
 from .commit import CommitService, CommitSummary
 from .core import (
     AuthorRegistry,
@@ -35,15 +47,6 @@ from .core import (
     run_git_command,
     runner,
     validation,
-)
-from .client import (
-    GitHubClient,
-    checkout_pr_branch,
-    create_pull_request_review,
-    fetch_pr_diff,
-    fetch_pr_metadata,
-    load_projects,
-    post_pr_comment,
 )
 from .issues import IssueService
 from .models import (
@@ -74,9 +77,6 @@ from .utils import (
     run_git,
 )
 
-# Backward-compatibility submodule mapping for legacy direct imports
-from .client import client as _github_client_module
-
 github_client = _github_client_module
 sys.modules.setdefault("ghtoolkit.github_client", _github_client_module)
 sys.modules.setdefault("ghtoolkit.api", api)
@@ -90,56 +90,56 @@ sys.modules.setdefault("ghtoolkit.diff_store", diffs)
 sys.modules.setdefault("ghtoolkit.comments", comments)
 
 __all__ = [
-    "GitHubClient",
-    "load_projects",
-    "fetch_pr_metadata",
-    "fetch_pr_diff",
-    "checkout_pr_branch",
-    "post_pr_comment",
-    "create_pull_request_review",
-    "create_pr_review",
+    "AuthorRegistry",
+    "CommentCache",
+    "CommitInfo",
+    "CommitItem",
     "CommitService",
     "CommitSummary",
-    "PullRequestService",
-    "ReviewService",
-    "IssueService",
+    "DateInput",
+    "DateWindow",
+    "DiffResult",
+    "DiffStorageError",
+    "DiffStore",
+    "GhCommandError",
+    "GhExecutionError",
+    "GhNotInstalledError",
+    "GhResponseError",
     "GhRunner",
+    "GhTimeoutError",
+    "GitHubClient",
+    "GitHubError",
+    "InlineReviewComment",
+    "IssueService",
+    "ProgressQueue",
+    "ProjectConfig",
+    "PullRequestInfo",
+    "PullRequestItem",
+    "PullRequestService",
+    "ReviewInfo",
+    "ReviewItem",
+    "ReviewService",
+    "checkout_pr_branch",
+    "clean_commit_message",
+    "create_pr_review",
+    "create_pull_request_review",
+    "fetch_pr_diff",
+    "fetch_pr_metadata",
+    "fetch_pr_user_comments",
+    "format_iso_date",
+    "get_pr_state",
+    "is_author_match",
+    "is_merge_commit",
+    "load_projects",
+    "parse_date",
+    "parse_timestamp",
+    "post_pr_comment",
+    "register_author_alias",
+    "resolve_timezone",
     "run_gh",
     "run_gh_json",
     "run_git",
-    "DiffResult",
-    "DiffStore",
-    "InlineReviewComment",
-    "CommitInfo",
-    "CommitItem",
-    "PullRequestInfo",
-    "PullRequestItem",
-    "ReviewInfo",
-    "ReviewItem",
-    "ProjectConfig",
-    "AuthorRegistry",
-    "is_author_match",
-    "register_author_alias",
-    "CommentCache",
-    "fetch_pr_user_comments",
-    "ProgressQueue",
-    "get_pr_state",
-    "scan_foreign_pr",
-    "scan_contributor_contributions",
     "run_git_command",
-    "GitHubError",
-    "GhNotInstalledError",
-    "GhExecutionError",
-    "GhTimeoutError",
-    "GhCommandError",
-    "GhResponseError",
-    "DiffStorageError",
-    "DateInput",
-    "DateWindow",
-    "parse_date",
-    "parse_timestamp",
-    "resolve_timezone",
-    "clean_commit_message",
-    "format_iso_date",
-    "is_merge_commit",
+    "scan_contributor_contributions",
+    "scan_foreign_pr",
 ]

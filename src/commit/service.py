@@ -47,7 +47,7 @@ class CommitService:
                     continue
             sha, message = item.get("sha"), commit.get("message")
             if not isinstance(sha, str) or not isinstance(message, str):
-                raise GhResponseError("Commit response is missing its SHA or message")
+                raise GhResponseError("Commit response is missing its SHA or message")  # noqa: TRY003
             result[sha] = {"hash": sha, "message": message}
         return list(result.values())[:limit]
 
@@ -55,12 +55,12 @@ class CommitService:
         endpoint = f"commits/{quote(nonempty(ref, 'ref'), safe='')}"
         pages = self._api.pages(endpoint)
         if not pages:
-            raise GhResponseError("GitHub returned no commit details")
+            raise GhResponseError("GitHub returned no commit details")  # noqa: TRY003
         records = [object_value(page, "commit details") for page in pages]
         result = dict(records[0])
         sha = result.get("sha")
         if not isinstance(sha, str) or any(page.get("sha") != sha for page in records):
-            raise GhResponseError(
+            raise GhResponseError(  # noqa: TRY003
                 "Commit reference changed during pagination; retry with a SHA"
             )
         result["files"] = [

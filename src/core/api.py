@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import json
 import re
+from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Any, Mapping
+from typing import Any
 from urllib.parse import urlencode
 
 from .errors import GhResponseError
@@ -25,14 +26,14 @@ class Repository:
         elif len(parts) == 3:
             host, owner, name = parts
         else:
-            raise ValueError("repo must be OWNER/REPO or HOST/OWNER/REPO")
+            raise ValueError("repo must be OWNER/REPO or HOST/OWNER/REPO")  # noqa: TRY003
         if not re.fullmatch(r"[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?", host):
-            raise ValueError("Invalid GitHub hostname")
+            raise ValueError("Invalid GitHub hostname")  # noqa: TRY003
         if any(
             not re.fullmatch(r"[A-Za-z0-9_.-]+", part) or part in {".", ".."}
             for part in (owner, name)
         ):
-            raise ValueError("Invalid repository owner or name")
+            raise ValueError("Invalid repository owner or name")  # noqa: TRY003
         return cls(host.lower(), owner, name)
 
     @property
@@ -88,7 +89,7 @@ class GhAPI:
             *self._args(path, query), "--method", "GET", "--paginate", "--slurp"
         )
         if not isinstance(result, list):
-            raise GhResponseError(f"Expected paginated JSON for {path}")
+            raise GhResponseError(f"Expected paginated JSON for {path}")  # noqa: TRY003
         return result
 
     def list(
@@ -137,7 +138,7 @@ class GhAPI:
         pages = object_list(self.runner.run_json(*args), "GraphQL pages")
         for page in pages:
             if page.get("errors"):
-                raise GhResponseError(
+                raise GhResponseError(  # noqa: TRY003
                     "GitHub GraphQL returned errors, not a complete result"
                 )
         return pages

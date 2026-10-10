@@ -20,7 +20,7 @@ class FakeRunner:
     def _take(self, kind, queue, args, kwargs):
         self.calls.append((kind, args, kwargs))
         if not queue:
-            raise AssertionError(f"Unexpected {kind} call: {args}")
+            raise AssertionError(f"Unexpected {kind} call: {args}")  # noqa: TRY003
         result = queue.popleft()
         if isinstance(result, Exception):
             raise result

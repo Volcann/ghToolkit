@@ -3,8 +3,9 @@ import unittest
 from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
 
-from ghtoolkit import GitHubClient, GhCommandError, GhResponseError
-from tests.helpers import FakeRunner, PATCH, SHA, OTHER_SHA, commit, rest_pr
+from ghtoolkit import GhCommandError, GhResponseError, GitHubClient
+
+from tests.helpers import OTHER_SHA, PATCH, SHA, FakeRunner, commit, rest_pr
 
 
 class CommitTests(unittest.TestCase):
