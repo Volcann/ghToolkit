@@ -3,11 +3,11 @@ from __future__ import annotations
 from typing import Any, TypedDict
 from urllib.parse import quote
 
-from ..api import GhAPI
-from ..dates import DateInput, DateWindow
-from ..diff_store import DiffResult, DiffStore
-from ..errors import GhResponseError
-from ..validation import nonempty, object_list, object_value, result_limit
+from ..core.api import GhAPI
+from ..core.dates import DateInput, DateWindow
+from ..core.errors import GhResponseError
+from ..core.validation import nonempty, object_list, object_value, result_limit
+from ..storage.diffs import DiffResult, DiffStore
 
 
 class CommitSummary(TypedDict):

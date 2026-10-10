@@ -85,5 +85,6 @@ ci:
 # Clean
 # ------------------------
 clean:
-	rm -rf build dist *.egg-info .pytest_cache .mypy_cache .ruff_cache .coverage htmlcov
+	rm -rf build dist .pytest_cache .mypy_cache .ruff_cache .coverage htmlcov
 	find . -type d -name __pycache__ -not -path './.venv/*' -prune -exec rm -rf {} +
+	find . -type d -name '*.egg-info' -exec rm -rf {} +

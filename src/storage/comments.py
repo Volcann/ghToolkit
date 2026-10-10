@@ -5,10 +5,7 @@ import os
 from pathlib import Path
 from typing import Any
 
-
-def _is_match(target: str, login: str = "") -> bool:
-    t = target.strip().lower()
-    return bool(t and login.strip().lower() == t)
+from ..core.identity import is_author_match
 
 
 class CommentCache:
@@ -78,7 +75,7 @@ def fetch_pr_user_comments(
                 c_auth = item.get("author", "")
                 c_date = item.get("created_at", "")
                 c_body = item.get("body", "").strip()
-                if _is_match(author, login=c_auth):
+                if is_author_match(author, login=c_auth):
                     if not target_date or c_date.startswith(target_date):
                         if c_body and c_body not in comments_found:
                             comments_found.append(c_body)
@@ -142,14 +139,14 @@ def fetch_pr_user_comments(
                     }
                 )
 
-                if _is_match(author, login=user_login):
+                if is_author_match(author, login=user_login):
                     if not target_date or c_date.startswith(target_date):
                         if c_body and c_body not in comments_found:
                             comments_found.append(c_body)
 
     if not comments_found and new_cache_entries:
         for item in new_cache_entries:
-            if _is_match(author, login=item["author"]):
+            if is_author_match(author, login=item["author"]):
                 if item["body"] not in comments_found:
                     comments_found.append(item["body"])
 

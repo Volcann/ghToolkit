@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from .scanner import (
     ProgressQueue,
     get_pr_state,

@@ -11,9 +11,21 @@ requires-python = ">=3.11"
 license = {file = "LICENSE"}
 dependencies = ["requests>=2.28.0"]
 
-[tool.setuptools.packages.find]
-where = ["src"]
+[tool.setuptools]
+packages = [
+    "ghtoolkit",
+    "ghtoolkit.audit",
+    "ghtoolkit.client",
+    "ghtoolkit.commit",
+    "ghtoolkit.core",
+    "ghtoolkit.issues",
+    "ghtoolkit.models",
+    "ghtoolkit.pull_request",
+    "ghtoolkit.storage",
+]
+
+[tool.setuptools.package-dir]
+ghtoolkit = "src"
 
 [tool.setuptools.package-data]
 ghtoolkit = ["py.typed"]
-

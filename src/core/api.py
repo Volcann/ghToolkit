@@ -7,6 +7,7 @@ from typing import Any, Mapping
 from urllib.parse import urlencode
 
 from .errors import GhResponseError
+from .runner import GhRunner
 from .validation import nonempty, object_list, object_value
 
 
@@ -48,7 +49,7 @@ class Repository:
 
 
 class GhAPI:
-    def __init__(self, repository: Repository, runner: Any):
+    def __init__(self, repository: Repository, runner: GhRunner):
         self.repository = repository
         self.runner = runner
 

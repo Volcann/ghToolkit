@@ -4,9 +4,9 @@ import re
 from pathlib import PurePosixPath
 from typing import Any, Literal, NotRequired, Sequence, TypedDict
 
-from ..api import GhAPI
-from ..dates import DateInput, DateWindow, parse_timestamp
-from ..validation import nonempty, positive_number
+from ..core.api import GhAPI
+from ..core.dates import DateInput, DateWindow, parse_timestamp
+from ..core.validation import nonempty, positive_number
 
 
 class InlineReviewComment(TypedDict):

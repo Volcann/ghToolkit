@@ -7,16 +7,14 @@ from datetime import date
 from pathlib import Path
 from typing import Any, Sequence
 
-from .api import GhAPI, Repository
-from .audit import (
+from ..audit import (
     scan_contributor_contributions,
     scan_foreign_pr,
 )
-from .comments import fetch_pr_user_comments
-from .commit.service import CommitService, CommitSummary
-from .dates import DateInput, DateWindow, parse_timestamp, resolve_timezone
-from .diff_store import DiffResult, DiffStore
-from .git_local import (
+from ..commit.service import CommitService, CommitSummary
+from ..core.api import GhAPI, Repository
+from ..core.dates import DateInput, DateWindow, parse_timestamp, resolve_timezone
+from ..core.git_local import (
     get_local_commit_branch,
     get_local_commit_pull_requests,
     get_local_commits_for_date,
@@ -25,18 +23,24 @@ from .git_local import (
     get_local_reviewed_prs_for_date,
     run_git_command,
 )
-from .identity import AuthorRegistry, register_author_alias
-from .issues.service import IssueService
-from .models import (
+from ..core.identity import (
+    AuthorRegistry,
+    is_author_match as is_author_match,
+    register_author_alias,
+)
+from ..core.runner import GhRunner
+from ..core.validation import nonempty
+from ..issues.service import IssueService
+from ..models import (
     CommitItem,
     ProjectConfig,
     PullRequestItem,
     ReviewItem,
 )
-from .pull_request.reviews import ReviewService
-from .pull_request.service import DateField, PullRequestService, summarize_rest_pr
-from .runner import GhRunner
-from .validation import nonempty
+from ..pull_request.reviews import ReviewService
+from ..pull_request.service import DateField, PullRequestService, summarize_rest_pr
+from ..storage.comments import fetch_pr_user_comments
+from ..storage.diffs import DiffResult, DiffStore
 
 
 class GitHubClient:

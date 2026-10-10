@@ -5,8 +5,8 @@ import tempfile
 from pathlib import Path
 from typing import Any
 
-from ..api import GhAPI
-from ..validation import nonempty, positive_number
+from ..core.api import GhAPI
+from ..core.validation import nonempty, positive_number
 
 
 class IssueService:

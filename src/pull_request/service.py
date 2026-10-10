@@ -3,18 +3,18 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Literal
 
-from ..api import GhAPI
 from ..commit.service import CommitSummary
-from ..dates import DateInput, DateWindow
-from ..diff_store import DiffResult, DiffStore
-from ..errors import GhResponseError
-from ..validation import (
+from ..core.api import GhAPI
+from ..core.dates import DateInput, DateWindow
+from ..core.errors import GhResponseError
+from ..core.validation import (
     nonempty,
     object_list,
     object_value,
     positive_number,
     result_limit,
 )
+from ..storage.diffs import DiffResult, DiffStore
 
 DateField = Literal["created", "updated", "merged", "closed"]
 SUMMARY_FIELDS = (

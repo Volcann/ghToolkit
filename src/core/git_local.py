@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from .identity import AuthorRegistry, is_author_match
-from .models import CommitItem, PullRequestItem, ReviewItem
+from ..models import CommitItem, PullRequestItem, ReviewItem
 
 
 def run_git_command(

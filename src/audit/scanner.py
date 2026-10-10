@@ -1,36 +1,12 @@
 from __future__ import annotations
 
-import logging
 import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Sequence
 
-_log = logging.getLogger(__name__)
-_LOG_FILE = Path(__file__).parent / "audit.log"
-
-_file_handler = logging.FileHandler(_LOG_FILE)
-_file_handler.setLevel(logging.ERROR)
-_log.addHandler(_file_handler)
-
-
-def _is_match(
-    target: str,
-    name: str = "",
-    email: str = "",
-    login: str = "",
-) -> bool:
-    t = target.strip().lower()
-    if not t:
-        return False
-    for candidate in (
-        name.strip().lower(),
-        email.strip().lower(),
-        login.strip().lower(),
-    ):
-        if candidate and (t == candidate or t in candidate or candidate in t):
-            return True
-    return False
+from ..core.identity import AuthorRegistry, is_author_match
+from ..core.runner import GhRunner
 
 
 class ProgressQueue:
@@ -105,7 +81,7 @@ class ProgressQueue:
         return ("", "", "UNKNOWN", item_str)
 
 
-def get_pr_state(runner: Any, repo_cli: str, pr_number: int) -> str | None:
+def get_pr_state(runner: GhRunner, repo_cli: str, pr_number: int) -> str | None:
     """Retrieve current state ('OPEN', 'MERGED', 'CLOSED') of a pull request."""
     try:
         data = runner.run_json(
@@ -119,15 +95,15 @@ def get_pr_state(runner: Any, repo_cli: str, pr_number: int) -> str | None:
 
 
 def scan_foreign_pr(
-    runner: Any,
+    runner: GhRunner,
     repo_cli: str,
     pr_number: int,
     target_author: str,
-    registry: Any | None = None,
+    registry: AuthorRegistry | None = None,
     invalid_labels: Sequence[str] = ("invalid", "spam", "wontfix"),
 ) -> tuple[int, bool, list[str]]:
     """Inspect a foreign PR to verify if it contains native commits authored by `target_author`."""
-    matcher = registry.is_match if registry else _is_match
+    matcher = registry.is_match if registry else is_author_match
     invalid_set = {lbl.lower() for lbl in invalid_labels}
 
     try:
@@ -141,7 +117,6 @@ def scan_foreign_pr(
             "commits,labels",
         )
     except Exception:
-        _log.exception("scan error for PR %s", pr_number)
         return pr_number, False, []
 
     if not isinstance(data, dict):
@@ -185,17 +160,17 @@ def scan_foreign_pr(
 
 
 def scan_contributor_contributions(
-    runner: Any,
+    runner: GhRunner,
     repo_cli: str,
     target_author: str,
     limit: int = 5000,
     include_foreign: bool = True,
     invalid_labels: Sequence[str] = ("invalid", "spam", "wontfix"),
     max_workers: int = 10,
-    registry: Any | None = None,
+    registry: AuthorRegistry | None = None,
 ) -> tuple[list[int], list[str]]:
     """Scan all pull requests in a repository for contributions by `target_author`."""
-    matcher = registry.is_match if registry else _is_match
+    matcher = registry.is_match if registry else is_author_match
 
     try:
         all_prs_data = runner.run_json(
@@ -211,7 +186,6 @@ def scan_contributor_contributions(
             "number,author",
         )
     except Exception:
-        _log.exception("scan error for PRs list")
         all_prs_data = []
 
     if not isinstance(all_prs_data, list):

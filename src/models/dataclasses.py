@@ -336,6 +336,7 @@ class PullRequestInfo(metaclass=ABCMeta):
     bullets: list[str] = field(default_factory=list)
     comments: list[str] = field(default_factory=list)
     category: str = "Backend"
+    project_name: str = "HR-Tool"
     repo_name: str = ""
 
     def to_dict(self) -> dict[str, Any]:
@@ -365,6 +366,7 @@ class PullRequestInfo(metaclass=ABCMeta):
             "bullets": list(self.bullets),
             "comments": list(self.comments),
             "category": self.category,
+            "project_name": self.project_name,
             "repo_name": self.repo_name,
         }
 
@@ -415,6 +417,7 @@ class PullRequestInfo(metaclass=ABCMeta):
             bullets=data.get("bullets", []),
             comments=data.get("comments", []),
             category=data.get("category", "Backend"),
+            project_name=data.get("project_name") or data.get("name", "HR-Tool"),
             repo_name=data.get("repo_name", ""),
         )
 
@@ -663,7 +666,7 @@ class ReviewInfo(metaclass=ABCMeta):
     pr_title: str
     reviewer: str
     state: str  # APPROVED, COMMENTED, CHANGES_REQUESTED, REVIEWED
-    submitted_at: str
+    submitted_at: str = ""
     url: str = ""
     body: str = ""
     comments: list[str] = field(default_factory=list)

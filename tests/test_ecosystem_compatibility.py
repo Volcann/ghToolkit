@@ -652,15 +652,6 @@ class EcosystemCompatibilityTests(unittest.TestCase):
             rev_res = create_pull_request_review("org/repo", 42, fake_sha, inline)
             self.assertEqual(rev_res["id"], 888)
 
-    def test_pr_alias_package_import(self):
-        """Verify ghtoolkit.pr package alias is importable and matches pull_request."""
-        import ghtoolkit.pr as pr_pkg
-        import ghtoolkit.pull_request as pull_request_pkg
-
-        self.assertIs(pr_pkg.PullRequestService, pull_request_pkg.PullRequestService)
-        self.assertIs(pr_pkg.ReviewService, pull_request_pkg.ReviewService)
-        self.assertEqual(pr_pkg.SUMMARY_FIELDS, pull_request_pkg.SUMMARY_FIELDS)
-
 
 if __name__ == "__main__":
     unittest.main()
